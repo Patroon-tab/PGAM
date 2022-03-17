@@ -1,6 +1,9 @@
 from decimal import ROUND_DOWN
 import math
 import tkinter as tk
+from zipfile import ZipFile
+import time
+
 ######################
 D1 = 12.7 * 1000
 D2 = 25.4 * 1000
@@ -542,4 +545,15 @@ G75*
 mechanical("layer.GM1", init)
 print("Succesfully Created Gerber Files")
 
+time.sleep(1)
 
+zipObj = ZipFile('layer.zip', 'w')
+zipObj.write('layer.g1')
+zipObj.write('layer.g2')
+zipObj.write('layer.gbl')
+zipObj.write('layer.GBS')
+zipObj.write('layer.GM1')
+zipObj.write('layer.gtl')
+zipObj.write('layer.GTS')
+zipObj.write('layer.txt')
+zipObj.close()
