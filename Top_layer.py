@@ -1,8 +1,11 @@
 from decimal import ROUND_DOWN
 import math
 import tkinter as tk
+import weakref
 from zipfile import ZipFile
 import time
+
+from sympy import pollard_pm1
 
 ######################
 D1 = 12.7 * 1000
@@ -21,8 +24,8 @@ D13 = 0.6
 D14 = 0.15
 D16 = 10 * 1000
 D17 = 2.06
-D18 = 0.4064   #length cutout
-D19 =  0.6096  #width cutout
+D18 = 0.4064 * 1000   #length cutout
+D19 =  0.6096 *1000 #width cutout
 
 
 print("why")
@@ -397,10 +400,18 @@ def groundplane(filename):
         file.write(init)
         file.write("G36*\n")
         p1 = [0,0]
+        pcc1 = [(D1/2)-(D18/2), 0]
+        pcc2 = [pcc1[0], D19]
+        pcc3 = [(D1/2)+(D18/2), D19]
+        pcc4 = [(D1/2)+(D18/2), 0]
         p2 = [D1,0]
         p3 = [D1,D2]
+        pc1 = [(D1/2)+(D18/2), D2]
+        pc2 = [pc1[0], (D2-D19)]
+        pc3 = [(D1/2)-(D18/2), pc2[1]]
+        pc4 = [(D1/2)-(D18/2), D2]
         p4 = [0,D2]
-        pointsgp = [p1,p2,p3,p4,p1]
+        pointsgp = [p1,pcc1,pcc2,pcc3,pcc4,p2,p3,pc1,pc2,pc3,pc4,p4,p1]
         for x in pointsgp:
                 print("X%dY%d%s*\n"%(x[0],x[1], "D1"))
                 file.write("X%dY%d%s*\n"%(x[0],x[1], "D1"))
