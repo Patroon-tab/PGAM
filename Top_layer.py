@@ -306,7 +306,7 @@ def toinchtz(mm):
         
 def toinchtz2(mm):
         zeros = 5
-        mils = ((mm/25.4) *1000)#/3.947
+        mils = ((mm/25.4) *1000)/3.93701
         mils = round(mils)
         mils = str(mils)
         """
@@ -343,8 +343,8 @@ file.truncate(0)
 
 file.write(initdrill)
 
-viat1 = ("T1F00S00C%f"%(D14))
-holet2 = ("T2F00S00C%f"%(D17))
+viat1 = ("T1F00S00C%f"%(D14/3.93701))
+holet2 = ("T2F00S00C%f"%(D17/3.93701))
 
 file.write(viat1+"\n")
 file.write(holet2+"\n")
@@ -562,7 +562,7 @@ G04*
 G04 Layer_Color=16711935*
 %FSLAX25Y25*%
 %MOIN*%
-%SFA3.937B3.937*%
+%SFA3.937B3.937*% 
 G70*
 G04*
 G04 #@! TF.SameCoordinates,EAAEF115-C746-42B2-B974-C945C9191EC5*
