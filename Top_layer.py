@@ -424,6 +424,27 @@ def groundplane(filename):
         file.write("G37*\n")
         file.write(end)
         file.close()
+
+def solder(filename):
+        file = open(filename, "w+")
+        file.truncate(0)
+        file.write(init)
+        file.write("G36*\n")
+        p1 = [0,0]
+        p2 = [D1,0]
+        p3 = [D1,D2]
+        p4 = [0,D2]
+        pointsgp = [p1,p2,p3,p4,p1]
+        for x in pointsgp:
+                print("X%dY%d%s*\n"%(x[0],x[1], "D1"))
+                file.write("X%dY%d%s*\n"%(x[0],x[1], "D1"))  
+
+        
+        file.write("G37*\n")
+        file.write(end)
+        file.close()
+
+
 init =  """G04*
 G04*
 G04 Layer_Color=16711680*
@@ -499,8 +520,8 @@ G75*
 %ADD10C,0.09068*%
 %ADD11C,0.01587*%"""
 
-groundplane("layer.GTS")
-groundplane("layer.GBS")
+solder("layer.GTS")
+solder("layer.GBS")
 
 
 def mechanical(filename,initin):
