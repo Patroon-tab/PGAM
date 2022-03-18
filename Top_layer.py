@@ -5,7 +5,7 @@ import weakref
 from zipfile import ZipFile
 import time
 
-from sympy import pollard_pm1
+
 
 ######################
 D1 = 12.7 * 1000
