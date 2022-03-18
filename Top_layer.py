@@ -57,6 +57,8 @@ E13 = inputd(13, D13)
 E14 = inputd(14, D14)
 E16 = inputd(16, D16/1000)
 E17 = inputd(17, D17)
+E18 = inputd(18, D18/1000)
+E19 = inputd(19, D19/1000)
 
 def overwrite():
         global D1
@@ -75,6 +77,8 @@ def overwrite():
         global D14
         global D16
         global D17
+        global D18
+        global D19
         D1 = float(E1.get()) * 1000
         D2 = float(E2.get()) * 1000
         D3 = float(E3.get()) * 1000
@@ -91,6 +95,8 @@ def overwrite():
         D14 = float(E14.get())
         D16 = float(E16.get()) * 1000
         D17 = float(E17.get())
+        D18 = float(E18.get())
+        D19 = float(E19.get())
         window.destroy()
 
 
