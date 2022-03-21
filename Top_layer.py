@@ -4,7 +4,7 @@ import tkinter as tk
 import weakref
 from zipfile import ZipFile
 import time
-
+basename = "layer"
 
 
 ######################
@@ -31,7 +31,7 @@ D19 =  0.6096 *1000 #width cutout
 print("why")
 
 window = tk.Tk()
-window.geometry("620x540")
+window.geometry("690x600")
 def inputd(number, default):
         default = str(default)
         label = "D" + str(number)
@@ -60,6 +60,12 @@ E17 = inputd(17, D17)
 E18 = inputd(18, D18/1000)
 E19 = inputd(19, D19/1000)
 
+tk.Label(window, text="Name:").grid(row=(19))
+namef = tk.Entry(window)
+namef.grid(row=(19), column=1)
+namef.insert(-1, "layername")
+
+
 def overwrite():
         global D1
         global D2
@@ -79,6 +85,7 @@ def overwrite():
         global D17
         global D18
         global D19
+        global basename
         D1 = float(E1.get()) * 1000
         D2 = float(E2.get()) * 1000
         D3 = float(E3.get()) * 1000
@@ -97,6 +104,7 @@ def overwrite():
         D17 = float(E17.get())
         D18 = float(E18.get())
         D19 = float(E19.get())
+        basename = namef.get()
         window.destroy()
 
 
@@ -156,7 +164,7 @@ end = "M02*"
 # D02* = Light off
 # 1000 = 1mm
 
-file = open("layer.gtl", "w+")
+file = open(basename+".gtl", "w+")
 file.truncate(0)
 
 print(init)
@@ -344,7 +352,7 @@ INCH,TZ
 """
 
 
-file = open("layer.txt", "w+")
+file = open(basename + ".txt", "w+")
 file.truncate(0)
 
 file.write(initdrill)
@@ -469,7 +477,7 @@ G75*
 %ADD14C,0.00787*%
 
 """
-groundplane("layer.gbl")
+groundplane(basename + ".gbl")
 init =  """G04*
 G04*
 G04 Layer_Physical_Order=2*
@@ -488,7 +496,7 @@ G75*
 %ADD13C,0.08268*%
 %ADD14C,0.00787*%
 """
-groundplane("layer.g1")
+groundplane(basename + ".g1")
 init =  """G04*
 G04*
 G04 Layer_Physical_Order=3*
@@ -507,7 +515,7 @@ G75*
 %ADD13C,0.08268*%
 %ADD14C,0.00787*%
 """
-groundplane("layer.g2")
+groundplane(basename + ".g2")
 
 init = """G04*
 G04*
@@ -526,8 +534,8 @@ G75*
 %ADD10C,0.09068*%
 %ADD11C,0.01587*%"""
 
-solder("layer.GTS")
-solder("layer.GBS")
+solder(basename + ".GTS")
+solder(basename + ".GBS")
 
 
 def mechanical(filename,initin):
@@ -580,18 +588,18 @@ G01*
 G75*
 """
 
-mechanical("layer.GM1", init)
+mechanical(basename + ".GM1", init)
 print("Succesfully Created Gerber Files")
 
 time.sleep(1)
 
-zipObj = ZipFile('layer.zip', 'w')
-zipObj.write('layer.g1')
-zipObj.write('layer.g2')
-zipObj.write('layer.gbl')
-zipObj.write('layer.GBS')
-zipObj.write('layer.GM1')
-zipObj.write('layer.gtl')
-zipObj.write('layer.GTS')
-zipObj.write('layer.txt')
+zipObj = ZipFile(basename + '.zip', 'w')
+zipObj.write(basename + '.g1')
+zipObj.write(basename + '.g2')
+zipObj.write(basename + '.gbl')
+zipObj.write(basename + '.GBS')
+zipObj.write(basename + '.GM1')
+zipObj.write(basename + '.gtl')
+zipObj.write(basename + '.GTS')
+zipObj.write(basename + '.txt')
 zipObj.close()
