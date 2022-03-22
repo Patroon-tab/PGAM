@@ -25,7 +25,7 @@ D14 = 0.15
 D16 = 10 * 1000
 D17 = 2.06
 D18 = 0.4064 * 1000   #length cutout
-D19 =  0.6096 *1000 #width cutout
+D19 =  0.6096 * 1000 #width cutout
 
 
 print("why")
@@ -102,8 +102,8 @@ def overwrite():
         D14 = float(E14.get())
         D16 = float(E16.get()) * 1000
         D17 = float(E17.get())
-        D18 = float(E18.get())
-        D19 = float(E19.get())
+        D18 = float(E18.get()) * 1000
+        D19 = float(E19.get()) * 1000
         basename = namef.get()
         window.destroy()
 
