@@ -6,26 +6,26 @@ from zipfile import ZipFile
 import time
 basename = "layer"
 
-
+prefactor = 3.93701
 ######################
-D1 = 12.7 * 1000
-D2 = 25.4 * 1000
-D3 = 9.53 * 1000 #SMA 9.53 SMP 5.84
-D4 = 2.79 * 1000
-D5 = 1.27 * 1000
-D6 = 0.25 * 1000
-D7 =  0.2794 * 1000
-D8  = 0.61 * 1000
-D9  = 2 * 1000
-D10 = 0.0762 * 1000
-D11 = 0.3302 * 1000
-D12 = 1.2 #doublecheck
-D13 = 0.6
-D14 = 0.15
-D16 = 10 * 1000
-D17 = 2.06
-D18 = 0.4064 * 1000   #length cutout
-D19 =  0.6096 * 1000 #width cutout
+D1 = prefactor * 12.7 * 1000
+D2 = prefactor * 25.4 * 1000
+D3 = prefactor * 9.53 * 1000 #SMA 9.53 SMP 5.84
+D4 = prefactor * 2.79 * 1000
+D5 = prefactor * 1.27 * 1000
+D6 = prefactor * 0.25 * 1000
+D7 = prefactor * 0.2794 * 1000
+D8 = prefactor * 0.61 * 1000
+D9  = prefactor * 2 * 1000
+D10 = prefactor * 0.0762 * 1000
+D11 = prefactor * 0.3302 * 1000
+D12 = prefactor * 1.2 #doublecheck
+D13 = prefactor * 0.6
+D14 = prefactor * 0.15
+D16 = prefactor * 10 * 1000
+D17 = prefactor * 2.06
+D18 = prefactor * 0.4064 * 1000   #length cutout
+D19 =  prefactor * 0.6096 * 1000 #width cutout
 
 
 print("why")
