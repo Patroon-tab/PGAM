@@ -8,24 +8,24 @@ basename = "layer"
 
 prefactor = 3.93701
 ######################
-D1 = prefactor * 12.7 * 1000
-D2 = prefactor * 25.4 * 1000
-D3 = prefactor * 9.53 * 1000 #SMA 9.53 SMP 5.84
-D4 = prefactor * 2.79 * 1000
-D5 = prefactor * 1.27 * 1000
-D6 = prefactor * 0.25 * 1000
-D7 = prefactor * 0.2794 * 1000
-D8 = prefactor * 0.61 * 1000
-D9  = prefactor * 2 * 1000
-D10 = prefactor * 0.0762 * 1000
-D11 = prefactor * 0.3302 * 1000
-D12 = prefactor * 1.2 #doublecheck
-D13 = prefactor * 0.6
-D14 = prefactor * 0.15
-D16 = prefactor * 10 * 1000
-D17 = prefactor * 2.06
-D18 = prefactor * 0.4064 * 1000   #length cutout
-D19 =  prefactor * 0.6096 * 1000 #width cutout
+D1 = 12.7 * 1000
+D2 = 25.4 * 1000
+D3 = 9.53 * 1000 #SMA 9.53 SMP 5.84
+D4 = 2.79 * 1000
+D5 = 1.27 * 1000
+D6 = 0.25 * 1000
+D7 =  0.2794 * 1000
+D8  = 0.61 * 1000
+D9  = 2 * 1000
+D10 = 0.0762 * 1000
+D11 = 0.3302 * 1000
+D12 = 1.2 #doublecheck
+D13 = 0.6
+D14 = 0.15
+D16 = 10 * 1000
+D17 = 2.06
+D18 = 0.4064 * 1000   #length cutout
+D19 =  0.6096 * 1000 #width cutout
 
 
 print("why")
@@ -86,24 +86,24 @@ def overwrite():
         global D18
         global D19
         global basename
-        D1 = float(E1.get()) * 1000
-        D2 = float(E2.get()) * 1000
-        D3 = float(E3.get()) * 1000
-        D4 = float(E4.get()) * 1000
-        D5 = float(E5.get()) * 1000
-        D6 = float(E6.get()) * 1000
-        D7 = float(E7.get()) * 1000
-        D8 = float(E8.get()) * 1000
-        D9  = float(E9.get()) * 1000
-        D10 = float(E10.get()) * 1000
-        D11 = float(E11.get()) * 1000
-        D12 = float(E12.get())
-        D13 = float(E13.get())
-        D14 = float(E14.get())
-        D16 = float(E16.get()) * 1000
-        D17 = float(E17.get())
-        D18 = float(E18.get()) * 1000
-        D19 = float(E19.get()) * 1000
+        D1 = float(E1.get()) * 1000 * prefactor
+        D2 = float(E2.get()) * 1000 * prefactor
+        D3 = float(E3.get()) * 1000 * prefactor
+        D4 = float(E4.get()) * 1000 * prefactor
+        D5 = float(E5.get()) * 1000 * prefactor
+        D6 = float(E6.get()) * 1000 * prefactor
+        D7 = float(E7.get()) * 1000 * prefactor
+        D8 = float(E8.get()) * 1000 * prefactor
+        D9  = float(E9.get()) * 1000 * prefactor
+        D10 = float(E10.get()) * 1000 * prefactor
+        D11 = float(E11.get()) * 1000 * prefactor
+        D12 = float(E12.get()) * prefactor
+        D13 = float(E13.get()) * prefactor
+        D14 = float(E14.get()) * prefactor
+        D16 = float(E16.get()) * 1000 * prefactor
+        D17 = float(E17.get()) * prefactor
+        D18 = float(E18.get()) * 1000 * prefactor
+        D19 = float(E19.get()) * 1000 * prefactor
         basename = namef.get()
         window.destroy()
 
