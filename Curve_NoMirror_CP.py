@@ -5,6 +5,7 @@ import weakref
 from zipfile import ZipFile
 import time
 import numpy as np
+from matplotlib import pyplot as plt
 
 basename = "layer"
 
@@ -126,7 +127,7 @@ window.mainloop()
 #trace parsing 
 Seg_types = np.array([  0,  -1,   0,   1,   0,   1,   0,  -1,   0,  -1,   0,   1,   0]) #0 is straight, 1 is right turn, -1 is left turn
 Seg_dims  = np.array([5.0, 2.5, 0.5, 2.5, 0.2, 2.5, 6.0, 2.5, 0.2, 2.5, 0.5, 2.5, 5.0])
-Seg_lengths = Seg_dims+(np.pi/2-1)*np.absolute(Seg_types)*Seg_dims
+Seg_lengths = Seg_dims+(np.pi/2-1)*np.absolute(Seg_types)*Seg_dims #
 
 Trace_cumlength = np.cumsum(Seg_lengths)
 Trace_numvias = math.floor((Trace_cumlength[-1])/(D13/1000))-1
@@ -145,7 +146,7 @@ print(Seg_endnumvia)
 Seg_endnumvia[1:] = Seg_endnumvia[1:]-Seg_endnumvia[:-1]
 print(Seg_endnumvia)
 for seg_idx,seg_type in enumerate(Seg_types):
-    # generate positions for this segment
+    #generate positions for this segment
     for via_idx in range(Seg_endnumvia[seg_idx]):
         if Seg_types[seg_idx]==0:
             x=Tracer_x+(Tracer_disfirstvia+via_idx*(D13/1000))*np.cos(Tracer_dir)
@@ -181,6 +182,22 @@ for seg_idx,seg_type in enumerate(Seg_types):
         Tracer_y=Tracer_y+np.sin(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
         Tracer_dir=Tracer_dir+np.pi/2
     Tracer_disfirstvia=(D13/1000)-Seg_lengths[seg_idx]+(Tracer_disfirstvia+(Seg_endnumvia[seg_idx]-1)*(D13/1000))
+###### Matplotlib ########
+print("THIS Via_coords")
+print(Via_coords)
+Via_coords_x = []
+Via_coords_y = []
+
+for x in Via_coords:
+        print(x[0:2])
+        Via_coords_x.append(x[0])
+        Via_coords_y.append(x[1])
+plt.scatter(Via_coords_x, Via_coords_y)
+plt.xlim(0,25)
+plt.ylim(0,25)
+plt.show()
+
+###### Matplotlib END ########
 #####################
 
 
@@ -673,7 +690,7 @@ zipObj.write(basename + '.g2')
 zipObj.write(basename + '.gbl')
 zipObj.write(basename + '.GBS')
 zipObj.write(basename + '.GM1')
-zipObj.write(basename + '.gtl')
+#zipObj.write(basename + '.gtl') #working on gtl so not in file folder
 zipObj.write(basename + '.GTS')
 zipObj.write(basename + '.txt')
 zipObj.close()
