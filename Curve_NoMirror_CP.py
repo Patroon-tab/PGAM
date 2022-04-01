@@ -181,8 +181,11 @@ for seg_idx,seg_type in enumerate(Seg_types):
         Tracer_y=Tracer_y+np.sin(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
         Tracer_dir=Tracer_dir+np.pi/2
     Tracer_disfirstvia=(D13/1000)-Seg_lengths[seg_idx]+(Tracer_disfirstvia+(Seg_endnumvia[seg_idx]-1)*(D13/1000))
-    
-    
+#####################
+
+
+
+
 ######################
 init =  """G04*
 G04*
@@ -220,7 +223,7 @@ end = "M02*"
 # D01* = Light on
 # D02* = Light off
 # 1000 = 1mm
-
+"""
 file = open(basename+".gtl", "w+")
 file.truncate(0)
 
@@ -353,7 +356,7 @@ file.write(end)
 file.close()
 
 
-
+"""
 
 # Drill files 
 
