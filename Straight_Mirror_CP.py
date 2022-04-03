@@ -28,43 +28,6 @@ D18 = 0.4064 * 1000   #length cutout
 D19 =  0.6096 * 1000 #width cutout
 
 
-
-window = tk.Tk()
-window.geometry("690x600")
-def inputd(number, default):
-        default = str(default)
-        label = "D" + str(number)
-        tk.Label(window, text=label).grid(row=(number-1))
-        e1 = tk.Entry(window)
-        e1.grid(row=(number-1), column=1)
-        e1.insert(-1, default)
-        return e1
-        
-E1 = inputd(1, D1/1000)
-E2 = inputd(2, D2/1000)
-E3 = inputd(3, D3/1000)
-E4 = inputd(4, D4/1000)
-E5 = inputd(5, D5/1000)
-E6 = inputd(6, D6/1000)
-E7 = inputd(7, D7/1000)
-E8 = inputd(8, D8/1000)
-E9 = inputd(9, D9/1000)
-E10 = inputd(10, D10/1000)
-E11 = inputd(11, D11/1000)
-E12 = inputd(12, D12)
-E13 = inputd(13, D13)
-E14 = inputd(14, D14)
-E16 = inputd(16, D16/1000)
-E17 = inputd(17, D17)
-E18 = inputd(18, D18/1000)
-E19 = inputd(19, D19/1000)
-
-tk.Label(window, text="Name:").grid(row=(19))
-namef = tk.Entry(window)
-namef.grid(row=(19), column=1)
-namef.insert(-1, "layername")
-
-
 def overwrite():
         global D1
         global D2
@@ -107,6 +70,42 @@ def overwrite():
         window.destroy()
 
 
+#### Tkinter Guy ####
+window = tk.Tk()
+window.geometry("690x600")
+def inputd(number, default):
+        default = str(default)
+        label = "D" + str(number)
+        tk.Label(window, text=label).grid(row=(number-1))
+        e1 = tk.Entry(window)
+        e1.grid(row=(number-1), column=1)
+        e1.insert(-1, default)
+        return e1
+        
+E1 = inputd(1, D1/1000)
+E2 = inputd(2, D2/1000)
+E3 = inputd(3, D3/1000)
+E4 = inputd(4, D4/1000)
+E5 = inputd(5, D5/1000)
+E6 = inputd(6, D6/1000)
+E7 = inputd(7, D7/1000)
+E8 = inputd(8, D8/1000)
+E9 = inputd(9, D9/1000)
+E10 = inputd(10, D10/1000)
+E11 = inputd(11, D11/1000)
+E12 = inputd(12, D12)
+E13 = inputd(13, D13)
+E14 = inputd(14, D14)
+E16 = inputd(16, D16/1000)
+E17 = inputd(17, D17)
+E18 = inputd(18, D18/1000)
+E19 = inputd(19, D19/1000)
+
+tk.Label(window, text="Name:").grid(row=(19))
+namef = tk.Entry(window)
+namef.grid(row=(19), column=1)
+namef.insert(-1, "layername")
+#### Tkinter Guy END ####
 
 
 butt = tk.Button(text ="Generate", command = overwrite)
