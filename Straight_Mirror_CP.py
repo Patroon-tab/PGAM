@@ -125,26 +125,7 @@ window.mainloop()
 
 
 ######################
-init =  """G04*
-G04*
-G04 Layer_Physical_Order=1*
-G04 Layer_Color=255*
-%FSLAX25Y25*%
-%MOIN*%
-%SFA3.937B3.937*%
-G70*
-G04*
-G04*
-G04*
-G04 #@! TF.FilePolarity,Positive*
-G04*
-G01*
-G75*
-%ADD12C,0.00050*%
-%ADD13C,0.08268*%
-%ADD14C,0.00787*%
-"""
-end = "M02*"
+
 
 
 
@@ -161,21 +142,46 @@ end = "M02*"
 # D01* = Light on
 # D02* = Light off
 # 1000 = 1mm
-def featurelayer(laynam):
+def featurelayer(laynam): #Layer with Traces e.g Top and Bottom Layer
 
+        def draw(point, light): #Draws a polygon from a point array
+                print("X%dY%d%s*"%(point[0],point[1], light))
+                file.write("X%dY%d%s*\n"%(point[0],point[1], light))
+
+
+        init =  """G04*
+        G04*
+        G04 Layer_Physical_Order=1*
+        G04 Layer_Color=255*
+        %FSLAX25Y25*%
+        %MOIN*%
+        %SFA3.937B3.937*%
+        G70*
+        G04*
+        G04*
+        G04*
+        G04 #@! TF.FilePolarity,Positive*
+        G04*
+        G01*
+        G75*
+        %ADD12C,0.00050*%
+        %ADD13C,0.08268*%
+        %ADD14C,0.00787*%
+        """
+        end = "M02*"
+
+
+        ### Initialize File ###
         file = open(basename+laynam, "w+")
         file.truncate(0)
 
         print(init)
         file.write(init)
+        ### Initialize File END ###
 
-
-        #Left Ground Plane with Trace
-        def draw(point, light):
-                print("X%dY%d%s*"%(point[0],point[1], light))
-                file.write("X%dY%d%s*\n"%(point[0],point[1], light))
-
-        #left side
+        
+        
+        ###left side (GND PLANE)###
         p1 = [0,0]
         p2 = [p1[0], p1[1] + D2]
         p3 = [p2[0]+(D1/2)-(D8/2), p2[1] + 0]
@@ -185,7 +191,7 @@ def featurelayer(laynam):
         p7 = [p4[0], p4[1]-D16-(2*D9)]
         p8 = [p7[0], 0]
         points =  [p1,p2,p3,p4,p5,p6,p7,p8,p1]
-        #############
+        
         print("G36*\n")
         file.write("G36*\n")
 
@@ -194,16 +200,15 @@ def featurelayer(laynam):
                 draw(x, "D01")
         print("G37*\n")
         file.write("G37*\n")
-        #left side
-        ##############
-        ##############
-        #right side 
+        ###left side (GND PLANE) END###
+        
+        ###right side (GND PLANE)###
         print("G36*\n")
         file.write("G36*\n")   
         pointsr = []
         middle = D1/2
         middle2 = D2/2
-        for x in points:
+        for x in points: # Mirror Left side on middle line
                 pointsr.append([(middle-x[0])+middle, x[1]])
 
         
@@ -213,11 +218,12 @@ def featurelayer(laynam):
                 draw(x, "D01")
         print("G37*\n")
         file.write("G37*\n") 
-        ###############
-        #right side
+        ###right side (GND PLANE) END###
 
 
-        #middle strip
+        ### Trace Drawing ###
+
+        # Define Points of bottom left quarter 
         pm1 = [(D1/2)-(D6/2), 0]
         pm2 = [pm1[0], D5]
         pm3 = [(D1/2)-(D7/2), D5]
@@ -227,34 +233,32 @@ def featurelayer(laynam):
         pm7 = [D1/2, D2/2]
         pm8 = [D1/2, 0]
         pointsm = [pm1,pm2,pm3,pm4,pm5,pm6,pm7,pm8,pm1]
-        ################
+        
         print("G36*\n")
         file.write("G36*\n")
-
-        draw(pointsm[0], "D02")
+        
+        draw(pointsm[0], "D02") #Draw bottom left quarter
         for x in pointsm:
                 draw(x, "D01")
 
         print("G37*\n")
         file.write("G37*\n")
-        ##############
-        ###############
+        
         print("G36*\n")
         file.write("G36*\n")
         pointsmr = []
-        for x in pointsm:
+        for x in pointsm: # Create Point for bottomr right quarter
                 pointsmr.append([(middle-x[0])+middle, x[1]])
 
 
-        draw(pointsmr[0], "D02")
+        draw(pointsmr[0], "D02") # Draw bottom right quarter
         for x in pointsmr:
                 draw(x, "D01")
 
 
         print("G37*\n")
         file.write("G37*\n")
-        ###############
-        ###############
+        
         print("G36*\n")
         file.write("G36*\n")
         pointsmu = []
@@ -269,8 +273,7 @@ def featurelayer(laynam):
 
         print("G37*\n")
         file.write("G37*\n")
-        ####################
-        ####################
+       
         print("G36*\n")
         file.write("G36*\n")
         pointsmur = []
@@ -285,7 +288,7 @@ def featurelayer(laynam):
 
         print("G37*\n")
         file.write("G37*\n")
-        ###################
+        ### Trace Drawing END###
 
         #middle strip
 
@@ -293,6 +296,8 @@ def featurelayer(laynam):
         print(end)
         file.write(end)
         file.close()
+
+
 
 featurelayer(".gtl")
 featurelayer(".gbl")
