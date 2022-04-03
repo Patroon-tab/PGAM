@@ -105,8 +105,6 @@ tk.Label(window, text="Name:").grid(row=(19))
 namef = tk.Entry(window)
 namef.grid(row=(19), column=1)
 namef.insert(-1, "layername")
-#### Tkinter Guy END ####
-
 
 butt = tk.Button(text ="Generate", command = overwrite)
 butt.grid(row = 20, column = 0)
@@ -117,38 +115,19 @@ img = tk.PhotoImage(file="ref.png")
 canvas.create_image(20,20, anchor=tk.NW, image=img)   
 
 window.mainloop()
+#### Tkinter Guy END ####
 
 
 
+end = "M02*"
 
-
-
-
-######################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# D01* = Light on
-# D02* = Light off
-# 1000 = 1mm
 def featurelayer(laynam): #Layer with Traces e.g Top and Bottom Layer
 
         def draw(point, light): #Draws a polygon from a point array
                 print("X%dY%d%s*"%(point[0],point[1], light))
                 file.write("X%dY%d%s*\n"%(point[0],point[1], light))
 
-
+        ### Initialize File ###
         init =  """G04*
         G04*
         G04 Layer_Physical_Order=1*
@@ -168,10 +147,9 @@ def featurelayer(laynam): #Layer with Traces e.g Top and Bottom Layer
         %ADD13C,0.08268*%
         %ADD14C,0.00787*%
         """
-        end = "M02*"
+        
 
 
-        ### Initialize File ###
         file = open(basename+laynam, "w+")
         file.truncate(0)
 
@@ -179,8 +157,6 @@ def featurelayer(laynam): #Layer with Traces e.g Top and Bottom Layer
         file.write(init)
         ### Initialize File END ###
 
-        
-        
         ###left side (GND PLANE)###
         p1 = [0,0]
         p2 = [p1[0], p1[1] + D2]
@@ -211,15 +187,12 @@ def featurelayer(laynam): #Layer with Traces e.g Top and Bottom Layer
         for x in points: # Mirror Left side on middle line
                 pointsr.append([(middle-x[0])+middle, x[1]])
 
-        
-
         draw(pointsr[0], "D02")
         for x in pointsr:
                 draw(x, "D01")
         print("G37*\n")
         file.write("G37*\n") 
         ###right side (GND PLANE) END###
-
 
         ### Trace Drawing ###
 
@@ -247,14 +220,12 @@ def featurelayer(laynam): #Layer with Traces e.g Top and Bottom Layer
         print("G36*\n")
         file.write("G36*\n")
         pointsmr = []
-        for x in pointsm: # Create Point for bottomr right quarter
+        for x in pointsm: # Create Points for bottom right quarter
                 pointsmr.append([(middle-x[0])+middle, x[1]])
-
 
         draw(pointsmr[0], "D02") # Draw bottom right quarter
         for x in pointsmr:
                 draw(x, "D01")
-
 
         print("G37*\n")
         file.write("G37*\n")
@@ -262,14 +233,12 @@ def featurelayer(laynam): #Layer with Traces e.g Top and Bottom Layer
         print("G36*\n")
         file.write("G36*\n")
         pointsmu = []
-        for x in pointsm:
+        for x in pointsm: # Create Points for top right quarter
                 pointsmu.append([x[0],(middle2-x[1])+middle2])
 
-
-        draw(pointsmu[0], "D02")
+        draw(pointsmu[0], "D02") # Draw top right quarter
         for x in pointsmu:
                 draw(x, "D01")
-
 
         print("G37*\n")
         file.write("G37*\n")
@@ -277,31 +246,22 @@ def featurelayer(laynam): #Layer with Traces e.g Top and Bottom Layer
         print("G36*\n")
         file.write("G36*\n")
         pointsmur = []
-        for x in pointsm:
+        for x in pointsm: # Create Points for top left quarter
                 pointsmur.append([(middle-x[0])+middle,(middle2-x[1])+middle2])
 
-
-        draw(pointsmur[0], "D02")
+        draw(pointsmur[0], "D02") # Draw top left quarter
         for x in pointsmur:
                 draw(x, "D01")
 
-
         print("G37*\n")
         file.write("G37*\n")
-        ### Trace Drawing END###
-
-        #middle strip
-
 
         print(end)
         file.write(end)
         file.close()
 
-
-
 featurelayer(".gtl")
 featurelayer(".gbl")
-
 
 # Drill files 
 
@@ -342,10 +302,6 @@ def toinchtz2(mm):
         mils = mils + "00"
         return(mils)
 
-
-
-
-
 D14 = (D14 / 25.4)#/3.947
 D17 = (D17 / 25.4)#/3.947
 
@@ -355,7 +311,6 @@ initdrill = """M48
 INCH,TZ
 ;TYPE=PLATED
 """
-
 
 file = open(basename + ".txt", "w+")
 file.truncate(0)
@@ -378,7 +333,6 @@ xviar = (D1/2000) + (D12/2)
 print(xvial)
 print(xviar)
 
-
 numvias =  math.floor((D2/1000)/(D13+D14))
 disfirstvia = (D2/1000)-(numvias*D13)
 
@@ -393,7 +347,6 @@ disfirstvia = (D2/1000)-(numvias*D13)
 for x in range(numvias):
         file.write("""X%sY%s\n"""%(toinchtz2(xviar),toinchtz2(disfirstvia)))
         disfirstvia = disfirstvia + D13
-
 
 h1 = [(D1-D3)/2, D4]
 h1 = [h1[0]/1000, h1[1]/1000]
@@ -411,7 +364,6 @@ file.write("""X%sY%s\n"""%(toinchtz2(h4[0]),toinchtz2(h4[1])))
 print("Vias--> " + str(numvias))
 file.write("M30")
 file.close()
-
 
 def groundplane(filename):
         file = open(filename, "w+")
@@ -434,12 +386,7 @@ def groundplane(filename):
         for x in pointsgp:
                 print("X%dY%d%s*\n"%(x[0],x[1], "D1"))
                 file.write("X%dY%d%s*\n"%(x[0],x[1], "D1"))
-
-        
-
-        
-
-        
+    
         file.write("G37*\n")
         file.write(end)
         file.close()
@@ -457,14 +404,12 @@ def solder(filename):
         for x in pointsgp:
                 print("X%dY%d%s*\n"%(x[0],x[1], "D1"))
                 file.write("X%dY%d%s*\n"%(x[0],x[1], "D1"))  
-
-        
+      
         file.write("G37*\n")
         file.write(end)
         file.close()
 
-
-
+###GND PLANE 1###
 init =  """G04*
 G04*
 G04 Layer_Physical_Order=2*
@@ -484,6 +429,9 @@ G75*
 %ADD14C,0.00787*%
 """
 groundplane(basename + ".g1")
+###GND PLANE 1 END###
+
+###GND PLANE 2###
 init =  """G04*
 G04*
 G04 Layer_Physical_Order=3*
@@ -503,7 +451,10 @@ G75*
 %ADD14C,0.00787*%
 """
 groundplane(basename + ".g2")
+###GND PLANE 2 END###
 
+
+### Create Solder Maks planes(EMPTY)###
 init = """G04*
 G04*
 G04 Layer_Color=8388736*
@@ -523,7 +474,7 @@ G75*
 
 solder(basename + ".GTS")
 solder(basename + ".GBS")
-
+### Create Solder Maks planes(EMPTY) END###
 
 def mechanical(filename,initin):
         file = open(filename, "w+")
@@ -557,6 +508,8 @@ def mechanical(filename,initin):
         file.write(end)
         file.close()
 
+
+###Create mechanical layer(Outline)###
 init =  """G04*
 G04 #@! TF.GenerationSoftware,Altium Limited,Altium Designer,21.7.1 (17)*
 G04*
@@ -574,12 +527,10 @@ G04*
 G01*
 G75*
 """
-
 mechanical(basename + ".GM1", init)
-print("Succesfully Created Gerber Files")
+###Create mechanical layer(Outline) END###
 
-time.sleep(1)
-
+### Create Gerber Zip for production ###
 zipObj = ZipFile(basename + '.zip', 'w')
 zipObj.write(basename + '.g1')
 zipObj.write(basename + '.g2')
@@ -590,3 +541,7 @@ zipObj.write(basename + '.gtl')
 zipObj.write(basename + '.GTS')
 zipObj.write(basename + '.txt')
 zipObj.close()
+### Create Gerber Zip for production END###
+
+
+print("Succesfully Created Gerber Files")
