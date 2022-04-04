@@ -29,15 +29,15 @@ D16 = 10 * 1000
 D17 = 2.06
 D18 = 0.4064 * 1000   #length cutout
 D19 =  0.6096 * 1000 #width cutout
-D22 =  2.5 #Radius of curves
-D23 = 0.2 #Length of straight part between curves
-D24 = 5.0 #Lenght of initial straight part(including narrowing)
+D22 =  2.5 * 1000 #Radius of curves
+D23 = 0.2 * 1000#Length of straight part between curves
+D24 = 5.0 * 1000 #Lenght of initial straight part(including narrowing)
 
 
 
 
 window = tk.Tk()
-window.geometry("690x600")
+window.geometry("690x710")
 def inputd(number, default):
         default = str(default)
         label = "D" + str(number)
@@ -65,10 +65,12 @@ E16 = inputd(16, D16/1000)
 E17 = inputd(17, D17)
 E18 = inputd(18, D18/1000)
 E19 = inputd(19, D19/1000)
-
-tk.Label(window, text="Name:").grid(row=(19))
+E22 = inputd(22, D22/1000)
+E23 = inputd(23, D23/1000)
+E24 = inputd(24, D24/1000)
+tk.Label(window, text="Name:").grid(row=(24))
 namef = tk.Entry(window)
-namef.grid(row=(19), column=1)
+namef.grid(row=(24), column=1)
 namef.insert(-1, "layername")
 
 
@@ -91,6 +93,9 @@ def overwrite():
         global D17
         global D18
         global D19
+        global D22
+        global D23
+        global D24
         global basename
         D1 = float(E1.get()) * 1000 * prefactor
         D2 = float(E2.get()) * 1000 * prefactor
@@ -110,6 +115,9 @@ def overwrite():
         D17 = float(E17.get()) * prefactor
         D18 = float(E18.get()) * 1000 * prefactor
         D19 = float(E19.get()) * 1000 * prefactor
+        D22 = float(E22.get()) * 1000 * prefactor
+        D23 = float(E23.get()) * 1000 * prefactor
+        D24 = float(E24.get()) * 1000 * prefactor
         basename = namef.get()
         window.destroy()
 
@@ -117,11 +125,11 @@ def overwrite():
 
 
 butt = tk.Button(text ="Generate", command = overwrite)
-butt.grid(row = 20, column = 0)
+butt.grid(row = 25, column = 0)
 
 canvas = tk.Canvas(window, width = 1500, height = 3000) 
 canvas.grid(column = 3, row = 0, columnspan=300, rowspan=300)
-img = tk.PhotoImage(file="ref.png")     
+img = tk.PhotoImage(file="ref_curvey.png")     
 canvas.create_image(20,20, anchor=tk.NW, image=img)   
 
 window.mainloop()
