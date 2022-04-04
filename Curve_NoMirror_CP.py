@@ -32,6 +32,7 @@ D19 =  0.6096 * 1000 #width cutout
 
 
 
+
 window = tk.Tk()
 window.geometry("690x600")
 def inputd(number, default):
@@ -125,8 +126,8 @@ window.mainloop()
 ######################
 
 #trace parsing 
-Seg_types = np.array([  0,  -1,   0,   1,   0,   1,   0,  -1,   0,  -1,   0,   1,   0]) #0 is straight, 1 is right turn, -1 is left turn
-Seg_dims  = np.array([5.0, 2.5, 0.5, 2.5, 0.2, 2.5, 6.0, 2.5, 0.2, 2.5, 0.5, 2.5, 5.0])
+Seg_types = np.array([  0,  -1,   0,   1,   0,   1,   0,  -1,   0,  -1,   0,   1,   0])  #Seg_types = np.array([  0,  -1,   0,   1,   0,   1,   0,  -1,   0,  -1,   0,   1,   0]) #0 is straight, 1 is right turn, -1 is left turn
+Seg_dims  = np.array([5.0, 8.0, 0.5, 2.5, 0.2, 2.5, 6.0, 2.5, 0.2, 2.5, 0.5, 2.5, 5.0])#Seg_dims  = np.array([5.0, 2.5, 0.5, 2.5, 0.2, 2.5, 6.0, 2.5, 0.2, 2.5, 0.5, 2.5, 5.0]) #Straight length, Turn radius
 Seg_lengths = Seg_dims+(np.pi/2-1)*np.absolute(Seg_types)*Seg_dims #
 
 Trace_cumlength = np.cumsum(Seg_lengths)
@@ -182,6 +183,7 @@ for seg_idx,seg_type in enumerate(Seg_types):
         Tracer_y=Tracer_y+np.sin(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
         Tracer_dir=Tracer_dir+np.pi/2
     Tracer_disfirstvia=(D13/1000)-Seg_lengths[seg_idx]+(Tracer_disfirstvia+(Seg_endnumvia[seg_idx]-1)*(D13/1000))
+
 ###### Matplotlib ########
 print("THIS Via_coords")
 print(Via_coords)
@@ -193,17 +195,11 @@ for x in Via_coords:
         Via_coords_x.append(x[0])
         Via_coords_y.append(x[1])
 plt.scatter(Via_coords_x, Via_coords_y)
-plt.xlim(0,25)
-plt.ylim(0,25)
+plt.xlim(-25,25)
+plt.ylim(0,40)
 plt.show()
-
 ###### Matplotlib END ########
-#####################
 
-
-
-
-######################
 init =  """G04*
 G04*
 G04 Layer_Physical_Order=1*
@@ -240,137 +236,13 @@ end = "M02*"
 # D01* = Light on
 # D02* = Light off
 # 1000 = 1mm
+#Featureleayer
 """
 file = open(basename+".gtl", "w+")
 file.truncate(0)
 
 print(init)
 file.write(init)
-
-
-#Left Ground Plane with Trace
-def draw(point, light):
-        print("X%dY%d%s*"%(point[0],point[1], light))
-        file.write("X%dY%d%s*\n"%(point[0],point[1], light))
-
-#left side
-p1 = [0,0]
-p2 = [p1[0], p1[1] + D2]
-p3 = [p2[0]+(D1/2)-(D8/2), p2[1] + 0]
-p4 = [(D1/2)-(D8/2),(D2/2)+(D16/2)+D9]
-p5 = [p4[0]+((D8-D7)/2), p4[1]-D9]
-p6 = [p5[0]+0,p5[1]-D16]
-p7 = [p4[0], p4[1]-D16-(2*D9)]
-p8 = [p7[0], 0]
-points =  [p1,p2,p3,p4,p5,p6,p7,p8,p1]
-#############
-print("G36*\n")
-file.write("G36*\n")
-
-draw(p1, "D02")
-for x in points:
-        draw(x, "D01")
-print("G37*\n")
-file.write("G37*\n")
-#left side
-##############
-##############
-#right side 
-print("G36*\n")
-file.write("G36*\n")   
-pointsr = []
-middle = D1/2
-middle2 = D2/2
-for x in points:
-        pointsr.append([(middle-x[0])+middle, x[1]])
-
- 
-
-draw(pointsr[0], "D02")
-for x in pointsr:
-        draw(x, "D01")
-print("G37*\n")
-file.write("G37*\n") 
-###############
-#right side
-
-
-#middle strip
-pm1 = [(D1/2)-(D6/2), 0]
-pm2 = [pm1[0], D5]
-pm3 = [(D1/2)-(D7/2), D5]
-pm4 = [pm3[0], (D2/2)-(D16/2)-D9]
-pm5 = [(D1/2)-(D10/2), (D2/2)-(D16/2)]
-pm6 = [pm5[0], (D2/2)]
-pm7 = [D1/2, D2/2]
-pm8 = [D1/2, 0]
-pointsm = [pm1,pm2,pm3,pm4,pm5,pm6,pm7,pm8,pm1]
-################
-print("G36*\n")
-file.write("G36*\n")
-
-draw(pointsm[0], "D02")
-for x in pointsm:
-        draw(x, "D01")
-
-print("G37*\n")
-file.write("G37*\n")
-##############
-###############
-print("G36*\n")
-file.write("G36*\n")
-pointsmr = []
-for x in pointsm:
-        pointsmr.append([(middle-x[0])+middle, x[1]])
-
-
-draw(pointsmr[0], "D02")
-for x in pointsmr:
-        draw(x, "D01")
-
-
-print("G37*\n")
-file.write("G37*\n")
-###############
-###############
-print("G36*\n")
-file.write("G36*\n")
-pointsmu = []
-for x in pointsm:
-        pointsmu.append([x[0],(middle2-x[1])+middle2])
-
-
-draw(pointsmu[0], "D02")
-for x in pointsmu:
-        draw(x, "D01")
-
-
-print("G37*\n")
-file.write("G37*\n")
-####################
-####################
-print("G36*\n")
-file.write("G36*\n")
-pointsmur = []
-for x in pointsm:
-        pointsmur.append([(middle-x[0])+middle,(middle2-x[1])+middle2])
-
-
-draw(pointsmur[0], "D02")
-for x in pointsmur:
-        draw(x, "D01")
-
-
-print("G37*\n")
-file.write("G37*\n")
-###################
-
-#middle strip
-
-
-print(end)
-file.write(end)
-file.close()
 
 
 """
