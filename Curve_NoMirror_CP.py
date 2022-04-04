@@ -306,7 +306,7 @@ G75*
         file.write("G37*\n")
         ###Draw Straightpart 1 End###
 
-def drawarc(start_point, radius, thickness, resolution, startingpoints):
+def drawarc(start_point, radius, thickness, resolution, startingpoints, clock):
         points_arc = []
         degree_increment = math.floor(90/resolution) ###last points manually at meeting point
         radius_outer = radius + (thickness/2)
