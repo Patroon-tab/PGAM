@@ -482,7 +482,7 @@ def mechanical(filename,initin):
         file.truncate(0)
         file.write(initin)
         file.write("%ADD15C,0.00800*%\n")
-        file.write("D15*\n")
+        file.write("D10*\n")
         p1 = [0,0]
         p2 = [D1,0]
         p3 = [D1,D2]

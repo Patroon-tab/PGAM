@@ -278,6 +278,8 @@ G75*
 %ADD12C,0.00050*%
 %ADD13C,0.08268*%
 %ADD14C,0.00787*%
+%ADD15C,0.00800*%
+%ADD17C,0.00100*%
 """
 
         file.write(init)
@@ -305,9 +307,12 @@ G75*
         ###Draw Straightpart 1 End###
 
         ###Arc 1###
-        
-        #file.write("G74*\n") #Quadrant arc mode
-        #file.write("G02X%dY%dI%dJ0%s*\n"%((D1/2),D24,250, "D01"))
+        file.write("D17*")
+        file.write("X%dY%d%s*\n"%((D1/2),D24, "D02"))
+        file.write("G75*")
+        file.write("G03*")
+        file.write("X%dY%dI%dJ%d%s*\n"%((D1/2)-D22,D24+D22,D22,0,"D01"))
+
         
         ###Arc 1 END###
         file.write(end)
