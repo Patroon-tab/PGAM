@@ -29,6 +29,9 @@ D16 = 10 * 1000
 D17 = 2.06
 D18 = 0.4064 * 1000   #length cutout
 D19 =  0.6096 * 1000 #width cutout
+D22 =  2.5 #Radius of curves
+D23 = 0.2 #Length of straight part between curves
+D24 = 5.0 #Lenght of initial straight part(including narrowing)
 
 
 
