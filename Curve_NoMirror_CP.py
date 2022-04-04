@@ -306,15 +306,20 @@ G75*
         file.write("G37*\n")
         ###Draw Straightpart 1 End###
 
+def drawarc(start_point, radius, thickness, resolution, startingpoints):
+        points_arc = []
+        degree_increment = math.floor(90/resolution) ###last points manually at meeting point
+        radius_outer = radius + (thickness/2)
+        radius_iner = radius - (thickness/2)
+        ###Current State
+        points_arc.append(startingpoints[0])
+
+        for x in range(0, resolution):
+                points_arc.append()
+
+
         ###Arc 1###
-        """
-        file.write("D17*")
-        file.write("G01*")
-        file.write("X%dY%d%s*\n"%((D1/2),D24, "D02"))
-        file.write("G75*")
-        file.write("G03*")
-        file.write("X%dY%dI%dJ%d%s*\n"%(0,D24+D22,D22,0,"D01"))
-        """
+       
         
         ###Arc 1 END###
         file.write(end)
