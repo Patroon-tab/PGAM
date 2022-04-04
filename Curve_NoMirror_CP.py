@@ -307,12 +307,14 @@ G75*
         ###Draw Straightpart 1 End###
 
         ###Arc 1###
+        """
         file.write("D17*")
+        file.write("G01*")
         file.write("X%dY%d%s*\n"%((D1/2),D24, "D02"))
         file.write("G75*")
         file.write("G03*")
-        file.write("X%dY%dI%dJ%d%s*\n"%((D1/2)-D22,D24+D22,D22,0,"D01"))
-
+        file.write("X%dY%dI%dJ%d%s*\n"%(0,D24+D22,D22,0,"D01"))
+        """
         
         ###Arc 1 END###
         file.write(end)
