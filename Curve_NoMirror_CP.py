@@ -248,16 +248,74 @@ end = "M02*"
 # D02* = Light off
 # 1000 = 1mm
 #Featureleayer
+
+
+
+def featurelayer(laynam):
+
+        def draw(point, light): #Draws a polygon from a point array
+                #print("X%dY%d%s*"%(point[0],point[1], light))
+                file.write("X%dY%d%s*\n"%(point[0],point[1], light))
+
+        file = open(basename+laynam, "w+")
+        file.truncate(0)
+
+        init =  """G04*
+G04*
+G04 Layer_Physical_Order=1*
+G04 Layer_Color=255*
+%FSLAX25Y25*%
+%MOIN*%
+%SFA3.937B3.937*%
+G70*
+G04*
+G04*
+G04*
+G04 #@! TF.FilePolarity,Positive*
+G04*
+G01*
+G75*
+%ADD12C,0.00050*%
+%ADD13C,0.08268*%
+%ADD14C,0.00787*%
 """
-file = open(basename+".gtl", "w+")
-file.truncate(0)
 
-print(init)
-file.write(init)
+        file.write(init)
 
 
-"""
+        ###Draw Straightpart 1###
+        point_straight_1 = [(D1/2)-(D6/2),0]
+        point_straight_2 = [point_straight_1[0], D5]
+        point_straight_3 = [point_straight_2[0]-((D7-D6)/2), D5]
+        point_straight_4 = [point_straight_3[0],D24]
+        point_straight_5 = [point_straight_4[0]+D7, D24]
+        point_straight_6 = [point_straight_5[0], D5]
+        point_straight_7 =  [point_straight_6[0]- ((D7-D6)/2), D5]
+        point_straight_8 = [point_straight_1[0]+D6, 0]
+        
+        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5,point_straight_6,point_straight_7,point_straight_8,point_straight_1]
+        print("CORNER POLYGONS _____________________")
+        print(points_straight)
+        file.write("G36*\n")
 
+        for x in points_straight:
+                draw(x, "D01")
+
+        file.write("G37*\n")
+        ###Draw Straightpart 1 End###
+
+        ###Arc 1###
+        
+        #file.write("G74*\n") #Quadrant arc mode
+        #file.write("G02X%dY%dI%dJ0%s*\n"%((D1/2),D24,250, "D01"))
+        
+        ###Arc 1 END###
+        file.write(end)
+        file.close()
+featurelayer(".gtl")
+
+
+#Featurelayer_End
 # Drill files 
 
 def toinchtz(mm):
@@ -326,29 +384,7 @@ file.write(holet2+"\n")
 file.write("%\n")
 file.write("T01\n")
 
-# D12 = 1.5
-# D13 = 0.6
 
-# xvial = (D1/2000) - (D12/2)
-# xviar = (D1/2000) + (D12/2)
-# print(xvial)
-# print(xviar)
-
-
-# numvias =  math.floor((D2/1000)/(D13+D14))
-# disfirstvia = (D2/1000)-(numvias*D13)
-
-# for x in range(numvias):
-#         print("------------->  " + str(disfirstvia))
-#         file.write("""X%sY%s\n"""%(toinchtz2(xvial),toinchtz2(disfirstvia)))
-#         print("X%sY%s"%(toinchtz2(xvial),toinchtz2(disfirstvia)))
-#         disfirstvia = disfirstvia + D13
-
-# disfirstvia = (D2/1000)-(numvias*D13)
-
-# for x in range(numvias):
-#         file.write("""X%sY%s\n"""%(toinchtz2(xviar),toinchtz2(disfirstvia)))
-#         disfirstvia = disfirstvia + D13
 
 for via_idx,via_coord in enumerate(Via_coords):
     via_x=via_coord[0]-np.cos(via_coord[2])*D12/2000
@@ -369,7 +405,7 @@ h1 = [h1[0]/1000, h1[1]/1000]
 h2 = [h1[0]+(D3/1000), h1[1]]
 h3 = [h1[0], h1[1]+((D2-D4-D4)/1000)]
 h4 = [h2[0], h3[1]]
-print(h1, h2, h3, h4)
+#print(h1, h2, h3, h4)
 
 #coordinates
 file.write("T02\n")
@@ -377,7 +413,7 @@ file.write("""X%sY%s\n"""%(toinchtz2(h1[0]),toinchtz2(h1[1])))
 file.write("""X%sY%s\n"""%(toinchtz2(h2[0]),toinchtz2(h2[1])))
 file.write("""X%sY%s\n"""%(toinchtz2(h3[0]),toinchtz2(h3[1])))
 file.write("""X%sY%s\n"""%(toinchtz2(h4[0]),toinchtz2(h4[1])))
-print("Vias--> " + str(len(Via_coords)))
+#print("Vias--> " + str(len(Via_coords)))
 file.write("M30")
 file.close()
 
@@ -401,7 +437,7 @@ def groundplane(filename):
         p4 = [0,D2]
         pointsgp = [p1,pcc1,pcc2,pcc3,pcc4,p2,p3,pc1,pc2,pc3,pc4,p4,p1]
         for x in pointsgp:
-                print("X%dY%d%s*\n"%(x[0],x[1], "D1"))
+                #print("X%dY%d%s*\n"%(x[0],x[1], "D1"))
                 file.write("X%dY%d%s*\n"%(x[0],x[1], "D1"))
 
         
@@ -424,7 +460,7 @@ def solder(filename):
         p4 = [0,D2]
         pointsgp = [p1,p2,p3,p4,p1]
         for x in pointsgp:
-                print("X%dY%d%s*\n"%(x[0],x[1], "D1"))
+                #print("X%dY%d%s*\n"%(x[0],x[1], "D1"))
                 file.write("X%dY%d%s*\n"%(x[0],x[1], "D1"))  
 
         
