@@ -25,18 +25,17 @@ D11 = 0.3302 * 1000
 D12 = 1.0 * 1000 #doublecheck #changed here D12 and D13 for consistency with new function, any issue?
 D13 = 0.5 * 1000
 D14 = 0.15
-D16 = 10 * 1000
+D16 = 2.5 * 1000
 D17 = 2.06
 D18 = 0.4064 * 1000   #length cutout
 D19 =  0.6096 * 1000 #width cutout
-D22 =  2.5 * 1000 #Radius of big curves
+D22 =  2.0 * 1000 #Radius of big curves
 D24 = 5.0 * 1000 #Lenght of initial straight part(including narrowing)
-D25 = 9.92 * 1000
 D26 = 10.7 * 1000
 
 
 straight_segment_1 = (D26/2) - (2*D22) 
-straight_segment_2 = (D25/2) - (2*D22)
+straight_segment_2 = (D2/2) - (3*D22) - D24
 middle_straight_via = D26 - (2*D22)
 
 
@@ -448,8 +447,8 @@ G75*
         file.write("G36*\n")
         circle, endpoints = drawarc([D1/2,D24], D22, D7, 100, "counter", "left")
         for x in circle:
-                pass
-                #draw(x, "D01")
+                
+                draw(x, "D01")
 
         file.write("G37*\n")
 
@@ -471,16 +470,16 @@ G75*
         file.write("G36*\n")
         circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, 100, "norm", "left")
         for x in circle:
-                pass
-                #draw(x, "D01")
+               
+                draw(x, "D01")
 
         file.write("G37*\n")
 
 
 
         point_straight_1 = endpoints[1]
-        point_straight_2 = [point_straight_1[0]-straight_segment_2, point_straight_1[1]]
-        point_straight_3 = [point_straight_2[0], point_straight_2[1]+D7]
+        point_straight_2 = [point_straight_1[0], point_straight_1[1]+straight_segment_2]
+        point_straight_3 = [point_straight_2[0]-D7, point_straight_2[1]]
         point_straight_4 = endpoints[0]
         point_straight_5 = endpoints[1]
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
@@ -492,7 +491,57 @@ G75*
         file.write("G37*\n")
 
 
+        file.write("G36*\n")
+        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, 100, "norm", "right")
+        for x in circle:
+               
+                draw(x, "D01")
 
+        file.write("G37*\n")
+
+
+
+        straight_middle = (middle_straight_via - (2*D9) - D16)/2
+        point_straight_1 = endpoints[1]
+        point_straight_2 = [point_straight_1[0]+straight_middle, point_straight_1[1]]
+        point_straight_3 = [point_straight_2[0] + D9, point_straight_2[1] + ((D7-D10)/2)]
+        point_straight_4 = [point_straight_3[0] + D16, point_straight_3[1]]
+        point_straight_5 = [point_straight_4[0]+D9, point_straight_1[1]]
+        point_straight_6 = [point_straight_5[0] + straight_middle, point_straight_5[1]]
+        point_straight_7 = [point_straight_6[0], D2/2] 
+        point_straight_8 = [point_straight_1[0], D2/2]
+        point_straight_9 = endpoints[1]
+
+
+        
+        
+        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5, point_straight_6, point_straight_7, point_straight_8, point_straight_9]
+        
+        
+        print(points_straight)
+        
+        file.write("G36*\n")
+
+        for x in points_straight:
+                draw(x, "D01")
+        file.write("G37*\n")
+        
+        points_straight_mirror = []
+        for x in points_straight:
+                points_straight_mirror.append([x[0], D2 - x[1]])
+        
+        zz = 1
+        for x in points_straight_mirror:
+                plt.scatter(x[0], x[1], color = "red")
+                plt.text(x=x[0], y=x[1], s=str(zz))
+                zz = zz + 1
+        plt.show()
+
+        file.write("G36*\n")
+
+        for x in points_straight_mirror:
+                draw(x, "D01")
+        file.write("G37*\n")
 
 
 
@@ -800,7 +849,7 @@ zipObj.write(basename + '.g2')
 zipObj.write(basename + '.gbl')
 zipObj.write(basename + '.GBS')
 zipObj.write(basename + '.GM1')
-#zipObj.write(basename + '.gtl') #working on gtl so not in file folder
+zipObj.write(basename + '.gtl') #working on gtl so not in file folder
 zipObj.write(basename + '.GTS')
 zipObj.write(basename + '.txt')
 zipObj.close()
