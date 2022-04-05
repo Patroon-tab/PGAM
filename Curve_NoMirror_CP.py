@@ -29,9 +29,15 @@ D16 = 10 * 1000
 D17 = 2.06
 D18 = 0.4064 * 1000   #length cutout
 D19 =  0.6096 * 1000 #width cutout
-D22 =  2.5 * 1000 #Radius of curves
-D23 = 0.2 * 1000#Length of straight part between curves
+D22 =  2.5 * 1000 #Radius of big curves
 D24 = 5.0 * 1000 #Lenght of initial straight part(including narrowing)
+D25 = 9.92 * 1000
+D26 = 10.7 * 1000
+
+
+straight_segment_1 = (D26/2) - (2*D22) 
+straight_segment_2 = (D25/2) - (2*D22)
+middle_straight_via = D26 - (2*D22)
 
 
 
@@ -66,7 +72,7 @@ E17 = inputd(17, D17)
 E18 = inputd(18, D18/1000)
 E19 = inputd(19, D19/1000)
 E22 = inputd(22, D22/1000)
-E23 = inputd(23, D23/1000)
+
 E24 = inputd(24, D24/1000)
 tk.Label(window, text="Name:").grid(row=(24))
 namef = tk.Entry(window)
@@ -94,7 +100,7 @@ def overwrite():
         global D18
         global D19
         global D22
-        global D23
+
         global D24
         global basename
         D1 = float(E1.get()) * 1000 * prefactor
@@ -116,7 +122,7 @@ def overwrite():
         D18 = float(E18.get()) * 1000 * prefactor
         D19 = float(E19.get()) * 1000 * prefactor
         D22 = float(E22.get()) * 1000 * prefactor
-        D23 = float(E23.get()) * 1000 * prefactor
+
         D24 = float(E24.get()) * 1000 * prefactor
         basename = namef.get()
         window.destroy()
@@ -138,7 +144,7 @@ window.mainloop()
 
 #trace parsing 
 Seg_types = np.array([  0,  -1,   0,   1,   0,   1,   0,  -1,   0,  -1,   0,   1,   0])  #Seg_types = np.array([  0,  -1,   0,   1,   0,   1,   0,  -1,   0,  -1,   0,   1,   0]) #0 is straight, 1 is right turn, -1 is left turn
-Seg_dims  = np.array([5.0, 8.0, 0.5, 2.5, 0.2, 2.5, 6.0, 2.5, 0.2, 2.5, 0.5, 2.5, 5.0])#Seg_dims  = np.array([5.0, 2.5, 0.5, 2.5, 0.2, 2.5, 6.0, 2.5, 0.2, 2.5, 0.5, 2.5, 5.0]) #Straight length, Turn radius
+Seg_dims  = np.array([D24/1000, D22/1000, straight_segment_1/1000, D22/1000, straight_segment_2/1000, D22/1000, middle_straight_via/1000, D22/1000, straight_segment_2/1000, D22/1000, straight_segment_1/1000, D22/1000, D24/1000]) #Straight length, Turn radius
 Seg_lengths = Seg_dims+(np.pi/2-1)*np.absolute(Seg_types)*Seg_dims #
 
 Trace_cumlength = np.cumsum(Seg_lengths)
@@ -205,7 +211,7 @@ for x in Via_coords:
         print(x[0:2])
         Via_coords_x.append(x[0])
         Via_coords_y.append(x[1])
-plt.scatter(Via_coords_x, Via_coords_y)
+plt.scatter(Via_coords_x, Via_coords_y,s = 0.5)
 plt.xlim(-25,25)
 plt.ylim(0,40)
 plt.show()
@@ -237,6 +243,7 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
         points_arc = []
         x_cors = []
         y_cors = []
+        endpoints = []
         
         degree_increment = 1.5708/resolution ###last points manually at meeting point
 
@@ -252,7 +259,9 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
                         points_arc.append([x_cor, y_cor])
 
                 points_arc.append([startingpoints[0]-radius, startingpoints[1]+radius-(thickness/2)])
+                endpoints.append([startingpoints[0]-radius, startingpoints[1]+radius-(thickness/2)])
                 points_arc.append([startingpoints[0]-radius, startingpoints[1]+radius+(thickness/2)])
+                endpoints.append([startingpoints[0]-radius, startingpoints[1]+radius+(thickness/2)])
                 
                 for x in range(0, resolution):
                         x = resolution-x
@@ -282,6 +291,9 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
 
                 points_arc.append([startingpoints[0]+radius+(thickness/2), startingpoints[1]+radius]) ##todo
                 points_arc.append([startingpoints[0]+radius-(thickness/2), startingpoints[1]+radius]) ##todo 
+
+                endpoints.append([startingpoints[0]+radius+(thickness/2), startingpoints[1]+radius]) ##todo
+                endpoints.append([startingpoints[0]+radius-(thickness/2), startingpoints[1]+radius]) ##todo 
                 
                 for x in range(0, resolution):
                         x = resolution-x
@@ -296,10 +308,60 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
 
 
         elif(clock == "norm" and drive == "left"):
-                pass
+                points_arc.append([startingpoints[0],startingpoints[1]-(thickness/2)])
+
+                for x in range(0, resolution):
+
+
+                        x_cor = math.sin(x*degree_increment) * (radius +(thickness/2))
+                        x_cor = -x_cor + startingpoints[0]
+                        y_cor = math.cos(x*degree_increment) * (radius + (thickness/2))
+                        y_cor = -y_cor + startingpoints[1] + radius
+                        points_arc.append([x_cor, y_cor])
+
+                points_arc.append([startingpoints[0]-radius-(thickness/2), startingpoints[1]+radius]) ##todo
+                points_arc.append([startingpoints[0]-radius+(thickness/2), startingpoints[1]+radius]) ##todo 
+                endpoints.append([startingpoints[0]-radius-(thickness/2), startingpoints[1]+radius]) ##todo
+                endpoints.append([startingpoints[0]-radius+(thickness/2), startingpoints[1]+radius]) ##todo
+                
+                for x in range(0, resolution):
+                        x = resolution-x
+                        x_cor = math.sin(x*degree_increment) * (radius -(thickness/2))
+                        x_cor = -x_cor + startingpoints[0]
+                        y_cor = math.cos(x*degree_increment) * (radius - (thickness/2))
+                        y_cor = -y_cor + startingpoints[1] + radius
+                        points_arc.append([x_cor, y_cor])
+
+                points_arc.append([startingpoints[0],startingpoints[1]+(thickness/2)])
+                points_arc.append([startingpoints[0],startingpoints[1]-(thickness/2)])
 
         elif(clock == "norm" and drive == "right"):
-                pass
+                points_arc.append([startingpoints[0]- (thickness/2), startingpoints[1]])
+
+                for x in range(0, resolution):
+
+
+                        x_cor = math.cos(x*degree_increment) * (radius +(thickness/2))
+                        x_cor = -x_cor + startingpoints[0]+radius
+                        y_cor = math.sin(x*degree_increment) * (radius + (thickness/2))
+                        y_cor = y_cor + startingpoints[1] 
+                        points_arc.append([x_cor, y_cor])
+
+                points_arc.append([startingpoints[0]+radius, startingpoints[1]+radius+(thickness/2)]) ##todo
+                points_arc.append([startingpoints[0]+radius, startingpoints[1]+radius-(thickness/2)])##todo 
+                endpoints.append([startingpoints[0]+radius, startingpoints[1]+radius+(thickness/2)]) ##todo
+                endpoints.append([startingpoints[0]+radius, startingpoints[1]+radius-(thickness/2)])##todo 
+                
+                for x in range(0, resolution):
+                        x = resolution-x
+                        x_cor = math.cos(x*degree_increment) * (radius -(thickness/2))
+                        x_cor = -x_cor + startingpoints[0] +radius
+                        y_cor = math.sin(x*degree_increment) * (radius - (thickness/2))
+                        y_cor = y_cor + startingpoints[1]
+                        points_arc.append([x_cor, y_cor])
+
+                points_arc.append([startingpoints[0]+(thickness/2),startingpoints[1]])
+                points_arc.append([startingpoints[0]- (thickness/2), startingpoints[1]])
         
         for x in points_arc:
                 x_cors.append(x[0])
@@ -308,10 +370,11 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
 
         print("asöodkasüpdkaüskdüaskd")
         print(points_arc)
-        plt.scatter(x_cors, y_cors, s = 0.4)
+        plt.plot(x_cors, y_cors)
         plt.scatter(startingpoints[0],startingpoints[1], color = "green")
+        plt.scatter(points_arc[1][0],points_arc[1][1], color = "red")
         plt.show()
-        return points_arc
+        return points_arc, endpoints
 
 
 
@@ -382,20 +445,57 @@ G75*
         ###Draw Straightpart 1 End###
 
 
+        file.write("G36*\n")
+        circle, endpoints = drawarc([D1/2,D24], D22, D7, 100, "counter", "left")
+        for x in circle:
+                pass
+                #draw(x, "D01")
+
+        file.write("G37*\n")
 
 
+        point_straight_1 = endpoints[1]
+        point_straight_2 = [point_straight_1[0]-straight_segment_1, point_straight_1[1]]
+        point_straight_3 = [point_straight_2[0], point_straight_2[1]-D7]
+        point_straight_4 = endpoints[0]
+        point_straight_5 = endpoints[1]
+        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
+        print(points_straight)
+        file.write("G36*\n")
 
-       
-        
+        for x in points_straight:
+                draw(x, "D01")
+        file.write("G37*\n")
 
 
         file.write("G36*\n")
-
-        for x in drawarc([D1/2,D24], 8*1000, D7, 100, "counter", "right"):
-                
-                draw(x, "D01")
+        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, 100, "norm", "left")
+        for x in circle:
+                pass
+                #draw(x, "D01")
 
         file.write("G37*\n")
+
+
+
+        point_straight_1 = endpoints[1]
+        point_straight_2 = [point_straight_1[0]-straight_segment_2, point_straight_1[1]]
+        point_straight_3 = [point_straight_2[0], point_straight_2[1]+D7]
+        point_straight_4 = endpoints[0]
+        point_straight_5 = endpoints[1]
+        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
+        print(points_straight)
+        file.write("G36*\n")
+
+        for x in points_straight:
+                draw(x, "D01")
+        file.write("G37*\n")
+
+
+
+
+
+
 
         file.write(end)
         file.close()
