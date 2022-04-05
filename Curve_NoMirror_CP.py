@@ -269,30 +269,30 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
 
         elif(clock == "counter" and drive == "right"):
 
-                points_arc.append([startingpoints[0]-(thickness/2),startingpoints[1]])
+                points_arc.append([startingpoints[0],startingpoints[1]-(thickness/2)])
 
                 for x in range(0, resolution):
-                        x_cor = math.cos(x*degree_increment) * (radius -(thickness/2))
-                        x_cor = x_cor + startingpoints[0] - radius
-                        y_cor = math.sin(x*degree_increment) * (radius - (thickness/2))
-                        y_cor = y_cor + startingpoints[1] 
 
 
+                        x_cor = math.sin(x*degree_increment) * (radius +(thickness/2))
+                        x_cor = x_cor + startingpoints[0]
+                        y_cor = math.cos(x*degree_increment) * (radius + (thickness/2))
+                        y_cor = -y_cor + startingpoints[1] + radius
                         points_arc.append([x_cor, y_cor])
 
-                points_arc.append([startingpoints[0]-radius, startingpoints[1]+radius-(thickness/2)])
-                points_arc.append([startingpoints[0]-radius, startingpoints[1]+radius+(thickness/2)])
+                points_arc.append([startingpoints[0]+radius+(thickness/2), startingpoints[1]+radius]) ##todo
+                points_arc.append([startingpoints[0]+radius-(thickness/2), startingpoints[1]+radius]) ##todo 
                 
                 for x in range(0, resolution):
                         x = resolution-x
-                        x_cor = math.cos(x*degree_increment) * (radius +(thickness/2))
-                        x_cor = x_cor + startingpoints[0] - radius
-                        y_cor = math.sin(x*degree_increment) * (radius + (thickness/2))
-                        y_cor = y_cor + startingpoints[1]
+                        x_cor = math.sin(x*degree_increment) * (radius -(thickness/2))
+                        x_cor = x_cor + startingpoints[0]
+                        y_cor = math.cos(x*degree_increment) * (radius - (thickness/2))
+                        y_cor = -y_cor + startingpoints[1] +radius
                         points_arc.append([x_cor, y_cor])
 
-                points_arc.append([startingpoints[0]+(thickness/2),startingpoints[1]])
-                points_arc.append([startingpoints[0]-(thickness/2),startingpoints[1]])
+                points_arc.append([startingpoints[0],startingpoints[1]+(thickness/2)])
+                points_arc.append([startingpoints[0],startingpoints[1]-(thickness/2)])
 
 
         elif(clock == "norm" and drive == "left"):
