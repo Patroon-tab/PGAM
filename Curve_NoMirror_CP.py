@@ -233,12 +233,50 @@ G75*
 end = "M02*"
 
 
+def drawarc(startingpoints, radius, thickness, resolution, clock):
+        points_arc = []
+        
+        x_cors = []
+        y_cors = []
+        
+        degree_increment = 1.5708/resolution ###last points manually at meeting point
+        radius_outer = radius + (thickness/2)
+        radius_iner = radius - (thickness/2)
+        ###Current State
+        points_arc.append([startingpoints[0]-(thickness/2),startingpoints[1]])
+
+        for x in range(0, resolution):
+                x_cor = math.cos(x*degree_increment) * (radius -(thickness/2))
+                x_cor = x_cor + startingpoints[0] - radius
+                y_cor = math.sin(x*degree_increment) * (radius - (thickness/2))
+                y_cor = y_cor + startingpoints[1] 
+                points_arc.append([x_cor, y_cor])
+
+        points_arc.append([startingpoints[0]-radius, startingpoints[1]+radius-(thickness/2)])
+        points_arc.append([startingpoints[0]-radius, startingpoints[1]+radius+(thickness/2)])
+        
+        for x in range(0, resolution):
+                x = resolution-x
+                x_cor = math.cos(x*degree_increment) * (radius +(thickness/2))
+                x_cor = x_cor + startingpoints[0] - radius
+                y_cor = math.sin(x*degree_increment) * (radius + (thickness/2))
+                y_cor = y_cor + startingpoints[1]
+                points_arc.append([x_cor, y_cor])
+
+        points_arc.append([startingpoints[0]+(thickness/2),startingpoints[1]])
+        points_arc.append([startingpoints[0]-(thickness/2),startingpoints[1]])
+        
+        for x in points_arc:
+                x_cors.append(x[0])
+                y_cors.append(x[1])
 
 
-
-
-
-
+        print("asöodkasüpdkaüskdüaskd")
+        print(points_arc)
+        plt.scatter(x_cors, y_cors, s = 0.4)
+        plt.scatter(startingpoints[0],startingpoints[1], color = "green")
+        plt.show()
+        return points_arc
 
 
 
@@ -298,34 +336,40 @@ G75*
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5,point_straight_6,point_straight_7,point_straight_8,point_straight_1]
         print("CORNER POLYGONS _____________________")
         print(points_straight)
+        
         file.write("G36*\n")
 
         for x in points_straight:
                 draw(x, "D01")
 
         file.write("G37*\n")
+        
         ###Draw Straightpart 1 End###
 
-def drawarc(start_point, radius, thickness, resolution, startingpoints, clock):
-        points_arc = []
-        degree_increment = math.floor(90/resolution) ###last points manually at meeting point
-        radius_outer = radius + (thickness/2)
-        radius_iner = radius - (thickness/2)
-        ###Current State
-        points_arc.append(startingpoints[0])
 
-        for x in range(0, resolution):
-                points_arc.append()
 
+
+
+       
+        
+
+
+        file.write("G36*\n")
+
+        for x in drawarc([D1/2,D24], 8*1000, D7, 100, -1):
+                
+                draw(x, "D01")
+
+        file.write("G37*\n")
+
+        file.write(end)
+        file.close()
+featurelayer(".gtl")
 
         ###Arc 1###
        
         
         ###Arc 1 END###
-        file.write(end)
-        file.close()
-featurelayer(".gtl")
-
 
 #Featurelayer_End
 # Drill files 
