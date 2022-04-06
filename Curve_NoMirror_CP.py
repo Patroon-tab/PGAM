@@ -29,7 +29,7 @@ D16 = 2.5 * 1000
 D17 = 2.06
 D18 = 0.4064 * 1000   #length cutout
 D19 =  0.6096 * 1000 #width cutout
-D22 =  2.0 * 1000 #Radius of big curves
+D22 =  1.0 * 1000 #Radius of big curves
 D24 = 5.0 * 1000 #Lenght of initial straight part(including narrowing)
 D26 = 10.7 * 1000
 
@@ -357,7 +357,7 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
         plt.plot(x_cors, y_cors)
         plt.scatter(startingpoints[0],startingpoints[1], color = "green")
         plt.scatter(points_arc[1][0],points_arc[1][1], color = "red")
-        #plt.show()
+        
         return points_arc, endpoints
 
 def featurelayer(laynam):
@@ -392,7 +392,6 @@ G75*
 """
 
         file.write(init)
-
 
         ###Draw Straightpart 1###
         point_straight_1 = [(D1/2)-(D6/2),0]
@@ -474,7 +473,7 @@ G75*
         file.write("G37*\n")
 
 
-
+        #gohere
         straight_middle = (middle_straight_via - (2*D9) - D16)/2
         point_straight_1 = endpoints[1]
         point_straight_2 = [point_straight_1[0]+straight_middle, point_straight_1[1]]
@@ -515,7 +514,7 @@ G75*
 
 
         file.write("G36*\n")
-        circle, endpoints = drawarc(points_straight_mirror[6], D22, D7, 100, "counter", "right")
+        circle, endpoints = drawarc([points_straight_mirror[6][0],points_straight_mirror[6][1]], D22, D7, 100, "counter", "right")
         for x in circle:
                
                 draw(x, "D01")
@@ -596,11 +595,11 @@ G75*
         file.write("G37*\n")
 
 
-
-
-
         file.write(end)
         file.close()
+        plt.xlim(0,25000)
+        plt.ylim(0,25000)
+        plt.show()
 
 featurelayer(".gtl")
 
