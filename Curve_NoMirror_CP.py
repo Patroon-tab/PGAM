@@ -2,6 +2,7 @@ from ast import Global
 from decimal import ROUND_DOWN
 import math
 import tkinter as tk
+from turtle import left
 import weakref
 from zipfile import ZipFile
 import time
@@ -32,7 +33,7 @@ D19 =  0.6096 * 1000 #width cutout
 D22 =  2.5 * 1000 #Radius of big curves
 D24 = 5.0 * 1000 #Lenght of initial straight part(including narrowing)
 D26 = 10.7 * 1000
-
+segments_circle = 100
 straight_segment_1 = (D26/2) - (2*D22) 
 straight_segment_2 = (D2/2) - (3*D22) - D24
 middle_straight_via = D26 - (2*D22)
@@ -382,7 +383,7 @@ G75*
 %ADD15C,0.00800*%
 %ADD17C,0.00100*%
 """
-
+        left_side_plane = []
         file.write(init)
 
         ###Draw Straightpart 1###
@@ -395,7 +396,13 @@ G75*
         point_straight_7 =  [point_straight_6[0]- ((D7-D6)/2), D5]
         point_straight_8 = [point_straight_1[0]+D6, 0]
         
+        
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5,point_straight_6,point_straight_7,point_straight_8,point_straight_1]
+        
+        for x in range(0,4):
+                left_side_plane.append(points_straight[x])
+                
+
         print("CORNER POLYGONS _____________________")
         print(points_straight)
         
@@ -414,6 +421,8 @@ G75*
         for x in circle:
                 
                 draw(x, "D01")
+        for x in range(0, segments_circle + 2):
+                left_side_plane.append(circle[x])
 
         file.write("G37*\n")
 
@@ -425,6 +434,11 @@ G75*
         point_straight_5 = endpoints[1]
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
         print(points_straight)
+
+        for x in range(2,4):
+                left_side_plane.append(points_straight[x])
+
+
         file.write("G36*\n")
 
         for x in points_straight:
@@ -437,6 +451,9 @@ G75*
         for x in circle:
                
                 draw(x, "D01")
+        
+        for x in range(0, segments_circle + 2):
+                left_side_plane.append(circle[x])
 
         file.write("G37*\n")
 
@@ -592,6 +609,12 @@ G75*
         
         plt.show()
 
+        for x in left_side_plane:
+                plt.scatter(x[0],x[1])
+
+        plt.show()
+
+        
 featurelayer(".gtl")
 
 def toinchtz(mm):
