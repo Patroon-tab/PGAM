@@ -1,3 +1,4 @@
+from ast import Global
 from decimal import ROUND_DOWN
 import math
 import tkinter as tk
@@ -6,7 +7,6 @@ from zipfile import ZipFile
 import time
 import numpy as np
 from matplotlib import pyplot as plt
-
 basename = "layer"
 
 prefactor = 1
@@ -71,7 +71,6 @@ E17 = inputd(17, D17)
 E18 = inputd(18, D18/1000)
 E19 = inputd(19, D19/1000)
 E22 = inputd(22, D22/1000)
-
 E24 = inputd(24, D24/1000)
 tk.Label(window, text="Name:").grid(row=(24))
 namef = tk.Entry(window)
@@ -200,21 +199,7 @@ for seg_idx,seg_type in enumerate(Seg_types):
         Tracer_dir=Tracer_dir+np.pi/2
     Tracer_disfirstvia=(D13/1000)-Seg_lengths[seg_idx]+(Tracer_disfirstvia+(Seg_endnumvia[seg_idx]-1)*(D13/1000))
 
-###### Matplotlib ########
-print("THIS Via_coords")
-print(Via_coords)
-Via_coords_x = []
-Via_coords_y = []
 
-for x in Via_coords:
-        print(x[0:2])
-        Via_coords_x.append(x[0])
-        Via_coords_y.append(x[1])
-plt.scatter(Via_coords_x, Via_coords_y,s = 0.5)
-plt.xlim(-25,25)
-plt.ylim(0,40)
-#plt.show()
-###### Matplotlib END ########
 
 init =  """G04*
 G04*
@@ -235,8 +220,8 @@ G75*
 %ADD13C,0.08268*%
 %ADD14C,0.00787*%
 """
-end = "M02*"
 
+end = "M02*"
 
 def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
         points_arc = []
@@ -374,17 +359,6 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
         plt.scatter(points_arc[1][0],points_arc[1][1], color = "red")
         #plt.show()
         return points_arc, endpoints
-
-
-
-
-
-# D01* = Light on
-# D02* = Light off
-# 1000 = 1mm
-#Featureleayer
-
-
 
 def featurelayer(laynam):
 
@@ -627,15 +601,8 @@ G75*
 
         file.write(end)
         file.close()
+
 featurelayer(".gtl")
-
-        ###Arc 1###
-       
-        
-        ###Arc 1 END###
-
-#Featurelayer_End
-# Drill files 
 
 def toinchtz(mm):
         mils = (mm/25.4) *1000
@@ -675,67 +642,67 @@ def toinchtz2(mm):
         """
         return(cenmils)
 
+def drillfiles():
+        global D14
+        global D17
+        D14 = (D14 / 25.4)#/3.947
+        D17 = (D17 / 25.4)#/3.947
+
+        initdrill = """M48
+        ;Layer_Color=9474304
+        ;FILE_FORMAT=2:5
+        INCH,TZ
+        ;TYPE=PLATED
+        """
+
+
+        file = open(basename + ".txt", "w+")
+        file.truncate(0)
+
+        file.write(initdrill)
+
+        viat1 = ("T1F00S00C%f"%(D14/3.93701))
+        holet2 = ("T2F00S00C%f"%(D17/3.93701))
+
+        file.write(viat1+"\n")
+        file.write(holet2+"\n")
+        file.write("%\n")
+        file.write("T01\n")
 
 
 
+        for via_idx,via_coord in enumerate(Via_coords):
+                via_x=via_coord[0]-np.cos(via_coord[2])*D12/2000
+                via_y=via_coord[1]-np.sin(via_coord[2])*D12/2000
+                print("via L" + str(via_idx) + "-------------> " + str(via_x) + ", " + str(via_y))
+                print("before--->" + str(via_x))
+                print("after----> " + str(toinchtz2(via_x)))
+                file.write("""X%sY%s\n"""%(toinchtz2(via_x),toinchtz2(via_y)))
+                print("X%sY%s"%(toinchtz2(via_x),toinchtz2(via_y)))
+                via_x=via_coord[0]+np.cos(via_coord[2])*D12/2000
+                via_y=via_coord[1]+np.sin(via_coord[2])*D12/2000
+                print("via R" + str(via_idx) + "-------------> " + str(via_x) + ", " + str(via_y))
+                file.write("""X%sY%s\n"""%(toinchtz2(via_x),toinchtz2(via_y)))
+                print("X%sY%s"%(toinchtz2(via_x),toinchtz2(via_y)))
 
-D14 = (D14 / 25.4)#/3.947
-D17 = (D17 / 25.4)#/3.947
+        h1 = [(D1-D3)/2, D4]
+        h1 = [h1[0]/1000, h1[1]/1000]
+        h2 = [h1[0]+(D3/1000), h1[1]]
+        h3 = [h1[0], h1[1]+((D2-D4-D4)/1000)]
+        h4 = [h2[0], h3[1]]
+        #print(h1, h2, h3, h4)
 
-initdrill = """M48
-;Layer_Color=9474304
-;FILE_FORMAT=2:5
-INCH,TZ
-;TYPE=PLATED
-"""
+        #coordinates
+        file.write("T02\n")
+        file.write("""X%sY%s\n"""%(toinchtz2(h1[0]),toinchtz2(h1[1])))
+        file.write("""X%sY%s\n"""%(toinchtz2(h2[0]),toinchtz2(h2[1])))
+        file.write("""X%sY%s\n"""%(toinchtz2(h3[0]),toinchtz2(h3[1])))
+        file.write("""X%sY%s\n"""%(toinchtz2(h4[0]),toinchtz2(h4[1])))
+        #print("Vias--> " + str(len(Via_coords)))
+        file.write("M30")
+        file.close()
 
-
-file = open(basename + ".txt", "w+")
-file.truncate(0)
-
-file.write(initdrill)
-
-viat1 = ("T1F00S00C%f"%(D14/3.93701))
-holet2 = ("T2F00S00C%f"%(D17/3.93701))
-
-file.write(viat1+"\n")
-file.write(holet2+"\n")
-file.write("%\n")
-file.write("T01\n")
-
-
-
-for via_idx,via_coord in enumerate(Via_coords):
-    via_x=via_coord[0]-np.cos(via_coord[2])*D12/2000
-    via_y=via_coord[1]-np.sin(via_coord[2])*D12/2000
-    print("via L" + str(via_idx) + "-------------> " + str(via_x) + ", " + str(via_y))
-    print("before--->" + str(via_x))
-    print("after----> " + str(toinchtz2(via_x)))
-    file.write("""X%sY%s\n"""%(toinchtz2(via_x),toinchtz2(via_y)))
-    print("X%sY%s"%(toinchtz2(via_x),toinchtz2(via_y)))
-    via_x=via_coord[0]+np.cos(via_coord[2])*D12/2000
-    via_y=via_coord[1]+np.sin(via_coord[2])*D12/2000
-    print("via R" + str(via_idx) + "-------------> " + str(via_x) + ", " + str(via_y))
-    file.write("""X%sY%s\n"""%(toinchtz2(via_x),toinchtz2(via_y)))
-    print("X%sY%s"%(toinchtz2(via_x),toinchtz2(via_y)))
-
-h1 = [(D1-D3)/2, D4]
-h1 = [h1[0]/1000, h1[1]/1000]
-h2 = [h1[0]+(D3/1000), h1[1]]
-h3 = [h1[0], h1[1]+((D2-D4-D4)/1000)]
-h4 = [h2[0], h3[1]]
-#print(h1, h2, h3, h4)
-
-#coordinates
-file.write("T02\n")
-file.write("""X%sY%s\n"""%(toinchtz2(h1[0]),toinchtz2(h1[1])))
-file.write("""X%sY%s\n"""%(toinchtz2(h2[0]),toinchtz2(h2[1])))
-file.write("""X%sY%s\n"""%(toinchtz2(h3[0]),toinchtz2(h3[1])))
-file.write("""X%sY%s\n"""%(toinchtz2(h4[0]),toinchtz2(h4[1])))
-#print("Vias--> " + str(len(Via_coords)))
-file.write("M30")
-file.close()
-
+drillfiles()
 
 def groundplane(filename):
         file = open(filename, "w+")
@@ -787,7 +754,6 @@ def solder(filename):
         file.write(end)
         file.close()
 
-
 init =  """G04*
 G04*
 G04 Layer_Color=16711680*
@@ -806,7 +772,9 @@ G75*
 %ADD14C,0.00787*%
 
 """
+
 groundplane(basename + ".gbl")
+
 init =  """G04*
 G04*
 G04 Layer_Physical_Order=2*
@@ -825,7 +793,9 @@ G75*
 %ADD13C,0.08268*%
 %ADD14C,0.00787*%
 """
+
 groundplane(basename + ".g1")
+
 init =  """G04*
 G04*
 G04 Layer_Physical_Order=3*
@@ -844,6 +814,7 @@ G75*
 %ADD13C,0.08268*%
 %ADD14C,0.00787*%
 """
+
 groundplane(basename + ".g2")
 
 init = """G04*
@@ -864,8 +835,8 @@ G75*
 %ADD11C,0.01587*%"""
 
 solder(basename + ".GTS")
-solder(basename + ".GBS")
 
+solder(basename + ".GBS")
 
 def mechanical(filename,initin):
         file = open(filename, "w+")
@@ -918,9 +889,6 @@ G75*
 """
 
 mechanical(basename + ".GM1", init)
-print("Succesfully Created Gerber Files")
-
-time.sleep(1)
 
 zipObj = ZipFile(basename + '.zip', 'w')
 zipObj.write(basename + '.g1')
