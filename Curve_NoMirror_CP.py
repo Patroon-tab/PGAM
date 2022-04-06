@@ -213,7 +213,7 @@ for x in Via_coords:
 plt.scatter(Via_coords_x, Via_coords_y,s = 0.5)
 plt.xlim(-25,25)
 plt.ylim(0,40)
-plt.show()
+#plt.show()
 ###### Matplotlib END ########
 
 init =  """G04*
@@ -372,7 +372,7 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
         plt.plot(x_cors, y_cors)
         plt.scatter(startingpoints[0],startingpoints[1], color = "green")
         plt.scatter(points_arc[1][0],points_arc[1][1], color = "red")
-        plt.show()
+        #plt.show()
         return points_arc, endpoints
 
 
@@ -530,18 +530,97 @@ G75*
         for x in points_straight:
                 points_straight_mirror.append([x[0], D2 - x[1]])
         
-        zz = 1
-        for x in points_straight_mirror:
-                plt.scatter(x[0], x[1], color = "red")
-                plt.text(x=x[0], y=x[1], s=str(zz))
-                zz = zz + 1
-        plt.show()
+        
 
         file.write("G36*\n")
 
         for x in points_straight_mirror:
                 draw(x, "D01")
         file.write("G37*\n")
+
+
+
+        file.write("G36*\n")
+        circle, endpoints = drawarc(points_straight_mirror[6], D22, D7, 100, "counter", "right")
+        for x in circle:
+               
+                draw(x, "D01")
+
+        file.write("G37*\n")
+
+
+        point_straight_1 = endpoints[0]
+        point_straight_2 = [point_straight_1[0], point_straight_1[1]+straight_segment_2]
+        point_straight_3 = [point_straight_2[0]-D7, point_straight_2[1]]
+        point_straight_4 = endpoints[1]
+        point_straight_5 = endpoints[0]
+        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
+        print(points_straight)
+        file.write("G36*\n")
+
+        for x in points_straight:
+                draw(x, "D01")
+        file.write("G37*\n")
+
+
+        file.write("G36*\n")
+        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, 100, "counter", "left")
+        for x in circle:
+               
+                draw(x, "D01")
+
+        file.write("G37*\n")
+
+
+
+        point_straight_1 = endpoints[1]
+        point_straight_2 = [point_straight_1[0]-straight_segment_1, point_straight_1[1]]
+        point_straight_3 = [point_straight_2[0], point_straight_2[1]-D7]
+        point_straight_4 = endpoints[0]
+        point_straight_5 = endpoints[1]
+        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
+        print(points_straight)
+        file.write("G36*\n")
+
+        for x in points_straight:
+                draw(x, "D01")
+        file.write("G37*\n")
+        
+
+        file.write("G36*\n")
+        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, 100, "norm", "left")
+        for x in circle:
+               
+                draw(x, "D01")
+
+        file.write("G37*\n")
+
+        
+
+        point_straight_1 = [(D1/2)-(D6/2),0]
+        point_straight_2 = [point_straight_1[0], D5]
+        point_straight_3 = [point_straight_2[0]-((D7-D6)/2), D5]
+        point_straight_4 = [point_straight_3[0],D24]
+        point_straight_5 = [point_straight_4[0]+D7, D24]
+        point_straight_6 = [point_straight_5[0], D5]
+        point_straight_7 =  [point_straight_6[0]- ((D7-D6)/2), D5]
+        point_straight_8 = [point_straight_1[0]+D6, 0]
+        
+        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5,point_straight_6,point_straight_7,point_straight_8,point_straight_1]
+        points_straight_mirror = []
+
+        for x in points_straight:
+                points_straight_mirror.append([x[0], D2-x[1]])
+        print("CORNER POLYGONS _____________________")
+        print(points_straight)
+        
+        file.write("G36*\n")
+
+        for x in points_straight_mirror:
+                draw(x, "D01")
+
+        file.write("G37*\n")
+
 
 
 
