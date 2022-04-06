@@ -29,17 +29,13 @@ D16 = 2.5 * 1000
 D17 = 2.06
 D18 = 0.4064 * 1000   #length cutout
 D19 =  0.6096 * 1000 #width cutout
-D22 =  1.0 * 1000 #Radius of big curves
+D22 =  2.5 * 1000 #Radius of big curves
 D24 = 5.0 * 1000 #Lenght of initial straight part(including narrowing)
 D26 = 10.7 * 1000
-
 
 straight_segment_1 = (D26/2) - (2*D22) 
 straight_segment_2 = (D2/2) - (3*D22) - D24
 middle_straight_via = D26 - (2*D22)
-
-
-
 
 window = tk.Tk()
 window.geometry("690x710")
@@ -76,7 +72,6 @@ tk.Label(window, text="Name:").grid(row=(24))
 namef = tk.Entry(window)
 namef.grid(row=(24), column=1)
 namef.insert(-1, "layername")
-
 
 def overwrite():
         global D1
@@ -124,9 +119,6 @@ def overwrite():
         D24 = float(E24.get()) * 1000 * prefactor
         basename = namef.get()
         window.destroy()
-
-
-
 
 butt = tk.Button(text ="Generate", command = overwrite)
 butt.grid(row = 25, column = 0)
@@ -597,8 +589,7 @@ G75*
 
         file.write(end)
         file.close()
-        plt.xlim(0,25000)
-        plt.ylim(0,25000)
+        
         plt.show()
 
 featurelayer(".gtl")
