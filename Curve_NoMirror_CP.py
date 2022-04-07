@@ -20,7 +20,7 @@ D5 = 1.27 * 1000
 D6 = 0.25 * 1000
 D7 =  0.2794 * 1000
 D8  = 0.61 * 1000
-D9  = 2 * 1000
+D9  = 0.5 * 1000
 D10 = 0.0762 * 1000
 D11 = 0.3302 * 1000
 D12 = 1.0 * 1000 #doublecheck #changed here D12 and D13 for consistency with new function, any issue?
@@ -471,13 +471,17 @@ G75*
         for x in points_straight:
                 draw(x, "D01")
         file.write("G37*\n")
-
+        for x in range(2,4):
+                left_side_plane.append(points_straight[x])
 
         file.write("G36*\n")
         circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, 100, "norm", "right")
         for x in circle:
                
                 draw(x, "D01")
+
+        for x in range(0, segments_circle + 2):
+                left_side_plane.append(circle[x])
 
         file.write("G37*\n")
 
@@ -512,6 +516,8 @@ G75*
         for x in points_straight:
                 points_straight_mirror.append([x[0], D2 - x[1]])
         
+        for x in range(0,6):
+                left_side_plane.append(points_straight_mirror[x])
         
 
         file.write("G36*\n")
@@ -528,8 +534,11 @@ G75*
                
                 draw(x, "D01")
 
-        file.write("G37*\n")
+        for x in range(segments_circle + 2, (2*segments_circle) + 2):
+                left_side_plane.append(circle[x])
 
+        file.write("G37*\n")
+ 
 
         point_straight_1 = endpoints[0]
         point_straight_2 = [point_straight_1[0], point_straight_1[1]+straight_segment_2]
@@ -544,12 +553,18 @@ G75*
                 draw(x, "D01")
         file.write("G37*\n")
 
+        for x in range(2,4):
+                left_side_plane.append(points_straight[x])
+
 
         file.write("G36*\n")
         circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, 100, "counter", "left")
         for x in circle:
                
                 draw(x, "D01")
+
+        for x in range(0, segments_circle + 2):
+                left_side_plane.append(circle[x])
 
         file.write("G37*\n")
 
@@ -567,6 +582,9 @@ G75*
         for x in points_straight:
                 draw(x, "D01")
         file.write("G37*\n")
+
+        for x in range(2,4):
+                left_side_plane.append(points_straight[x])
         
 
         file.write("G36*\n")
@@ -575,6 +593,8 @@ G75*
                
                 draw(x, "D01")
 
+        for x in range(0, segments_circle + 2):
+                left_side_plane.append(circle[x])
         file.write("G37*\n")
 
         
@@ -600,6 +620,9 @@ G75*
 
         for x in points_straight_mirror:
                 draw(x, "D01")
+        
+        for x in range(0,4):
+                left_side_plane.append(points_straight_mirror[x])
 
         file.write("G37*\n")
 
@@ -608,10 +631,14 @@ G75*
         file.close()
         
         plt.show()
+        left_side_plane.append([0,D2])
+        left_side_plane.append([0,0])
+        left_side_plane.append(left_side_plane[0])
 
         for x in left_side_plane:
-                plt.scatter(x[0],x[1])
+                plt.scatter(x[0],x[1], s = 0.4, color = "blue")
 
+        
         plt.show()
 
         
