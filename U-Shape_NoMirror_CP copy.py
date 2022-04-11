@@ -12,8 +12,8 @@ basename = "layer"
 
 prefactor = 1
 ######################
-D1 = 12.7 * 1000
-D2 = 25.4 * 1000
+D1 = 25.4 * 1000
+D2 = 12.7 * 1000
 D3 = 9.53 * 1000 #SMA 9.53 SMP 5.84
 D4 = 2.79 * 1000
 D5 = 1.27 * 1000
@@ -31,8 +31,8 @@ D17 = 2.06
 D18 = 0.4064 * 1000   #length cutout
 D19 =  0.6096 * 1000 #width cutout
 D22 =  2.5 * 1000 #Radius of big curves
-D24 = 5.0 * 1000 #Lenght of initial straight part(including narrowing)
-D26 = 10.7 * 1000
+D24 = 9.0 * 1000 #Height of U-Shape short side
+D26 = 18.0 * 1000 #Length outer radiud outer radius
 segments_circle = 30
 straight_segment_1 = (D26/2) - (2*D22) 
 straight_segment_2 = (D2/2) - (3*D22) - D24
@@ -140,8 +140,8 @@ window.mainloop()
 ######################
 
 #trace parsing 
-Seg_types = np.array([  0,  -1,   0,   1,   0,   1,   0,  -1,   0,  -1,   0,   1,   0])  #Seg_types = np.array([  0,  -1,   0,   1,   0,   1,   0,  -1,   0,  -1,   0,   1,   0]) #0 is straight, 1 is right turn, -1 is left turn
-Seg_dims  = np.array([D24/1000, D22/1000, straight_segment_1/1000, D22/1000, straight_segment_2/1000, D22/1000, middle_straight_via/1000, D22/1000, straight_segment_2/1000, D22/1000, straight_segment_1/1000, D22/1000, D24/1000]) #Straight length, Turn radius
+Seg_types = np.array([0,1,0,1,0])  #Seg_types = np.array([  0,  1,   0,   1,   0,   1,   0,  -1,   0,  -1,   0,   1,   0]) #0 is straight, 1 is right turn, -1 is left turn
+Seg_dims  = np.array([D24/1000, D22/1000, ((D26-(2*D22))/1000), D22/1000, D24/1000]) #Straight length, Turn radius
 Seg_lengths = Seg_dims+(np.pi/2-1)*np.absolute(Seg_types)*Seg_dims #
 
 Trace_cumlength = np.cumsum(Seg_lengths)
@@ -432,7 +432,62 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
               
                 points_arc.append([startingpoints[0]+(thickness/2),startingpoints[1]])
                 points_arc.append([startingpoints[0]- (thickness/2), startingpoints[1]])
-        
+
+        elif(clock == "norm" and drive == "rightd"):
+
+                points_arc.append([startingpoints[0],startingpoints[1]-(thickness/2)])
+                
+
+                for x in range(0, resolution):
+
+
+                        x_cor = math.sin(x*degree_increment) * (radius +(thickness/2))
+                        x_cor = x_cor + startingpoints[0]
+                        y_cor = math.cos(x*degree_increment) * (radius + (thickness/2))
+                        y_cor = y_cor + startingpoints[1] - radius
+                        points_arc.append([x_cor, y_cor])
+
+                points_arc.append([startingpoints[0]+radius+(thickness/2), startingpoints[1]-radius]) 
+                points_arc.append([startingpoints[0]+radius-(thickness/2), startingpoints[1]-radius])  
+
+                endpoints.append([startingpoints[0]+radius+(thickness/2), startingpoints[1]-radius]) 
+                endpoints.append([startingpoints[0]+radius-(thickness/2), startingpoints[1]-radius])  
+                temp_turn = []
+                temp_turn_r = []
+                for x in range(0, resolution):
+                        x = resolution-x
+                        x_cor = math.sin(x*degree_increment) * (radius -(thickness/2))
+                        x_cor = x_cor + startingpoints[0]
+
+                        x_cor_plane = math.sin(x*degree_increment) * (radius -(D8/2))
+                        x_cor_plane = x_cor_plane + startingpoints[0]
+
+                        x_cor_plane_r = math.sin(x*degree_increment) * (radius +(D8/2))
+                        x_cor_plane_r = x_cor_plane_r + startingpoints[0]
+
+                        y_cor = math.cos(x*degree_increment) * (radius - (thickness/2))
+                        y_cor = y_cor + startingpoints[1] -radius
+
+                        y_cor_plane = math.cos(x*degree_increment) * (radius - (D8/2))
+                        y_cor_plane = y_cor_plane + startingpoints[1] -radius
+
+                        y_cor_plane_r = math.cos(x*degree_increment) * (radius + (D8/2))
+                        y_cor_plane_r = y_cor_plane_r + startingpoints[1] -radius
+                        points_arc.append([x_cor, y_cor])
+
+                        temp_turn.append([x_cor_plane, y_cor_plane])
+                        temp_turn_r.append([x_cor_plane_r, y_cor_plane_r])
+                temp_turn = temp_turn[::-1]
+                for x in temp_turn:
+                        left_side_plane.append(x)
+
+                temp_turn_r = temp_turn_r[::-1]
+                for x in temp_turn_r:
+                        right_side_plane.append(x)
+
+                points_arc.append([startingpoints[0],startingpoints[1]-(thickness/2)])
+                points_arc.append([startingpoints[0],startingpoints[1]+(thickness/2)])
+
         for x in points_arc:
                 x_cors.append(x[0])
                 y_cors.append(x[1])
@@ -480,7 +535,7 @@ G75*
         file.write(init)
 
         ###Draw Straightpart 1###
-        point_straight_1 = [(D1/2)-(D6/2),0]
+        point_straight_1 = [((D1-D26)/2)-(D6/2),0]
         point_straight_2 = [point_straight_1[0], D5]
         point_straight_3 = [point_straight_2[0]-((D7-D6)/2), D5]
         point_straight_4 = [point_straight_3[0],D24]
@@ -513,19 +568,18 @@ G75*
         right_side_plane.append([(D1/2) + (D8/2), D24])
 
         file.write("G36*\n")
-        circle, endpoints = drawarc([D1/2,D24], D22, D7, segments_circle, "counter", "left")
+        circle, endpoints = drawarc([point_straight_4[0]+(D7/2), point_straight_4[1]], D22, D7, segments_circle, "norm", "right")
         for x in circle:   
                 draw(x, "D01")
-       
 
         file.write("G37*\n")
 
 
-        point_straight_1 = endpoints[1]
-        point_straight_2 = [point_straight_1[0]-straight_segment_1, point_straight_1[1]]
+        point_straight_1 = endpoints[0]
+        point_straight_2 = [point_straight_1[0] + (D26-2*D22), point_straight_1[1]]
         point_straight_3 = [point_straight_2[0], point_straight_2[1]-D7]
-        point_straight_4 = endpoints[0]
-        point_straight_5 = endpoints[1]
+        point_straight_4 = endpoints[1]
+        point_straight_5 = endpoints[0]
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
         print(points_straight)
 
@@ -540,7 +594,7 @@ G75*
 
 
         file.write("G36*\n")
-        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, segments_circle, "norm", "left")
+        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, segments_circle, "norm", "rightd")
         for x in circle:
                
                 draw(x, "D01")
@@ -551,11 +605,11 @@ G75*
 
 
 
-        point_straight_1 = endpoints[1]
-        point_straight_2 = [point_straight_1[0], point_straight_1[1]+straight_segment_2]
-        point_straight_3 = [point_straight_2[0]-D7, point_straight_2[1]]
-        point_straight_4 = endpoints[0]
-        point_straight_5 = endpoints[1]
+        point_straight_1 = endpoints[0]
+        point_straight_2 = 
+        point_straight_3 = 
+        point_straight_4 =
+        point_straight_5 = 
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
         print(points_straight)
         file.write("G36*\n")
@@ -733,7 +787,7 @@ G75*
         right_side_plane.append(right_side_plane[0])
         t = 0
         
-
+        """
         file.write("G36*\n")
         for x in left_side_plane:
                 draw(x, "D01")
@@ -744,7 +798,7 @@ G75*
                 draw(x, "D01")
         file.write("G37*\n")
 
-
+        """
 
 
         file.write(end)
