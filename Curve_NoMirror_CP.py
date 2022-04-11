@@ -33,10 +33,14 @@ D19 =  0.6096 * 1000 #width cutout
 D22 =  2.5 * 1000 #Radius of big curves
 D24 = 5.0 * 1000 #Lenght of initial straight part(including narrowing)
 D26 = 10.7 * 1000
-segments_circle = 100
+segments_circle = 10
 straight_segment_1 = (D26/2) - (2*D22) 
 straight_segment_2 = (D2/2) - (3*D22) - D24
 middle_straight_via = D26 - (2*D22)
+
+global left_side_plane
+left_side_plane = []
+
 
 window = tk.Tk()
 window.geometry("690x710")
@@ -227,13 +231,22 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
         if(clock == "counter" and drive == "left"):
 
                 points_arc.append([startingpoints[0]-(thickness/2),startingpoints[1]])
-
+                
                 for x in range(0, resolution):
                         x_cor = math.cos(x*degree_increment) * (radius -(thickness/2))
                         x_cor = x_cor + startingpoints[0] - radius
+
+                        x_cor_plane = math.cos(x*degree_increment) * (radius -(thickness/2)-(D8-D7))
+                        x_cor_plane = x_cor_plane + startingpoints[0] - radius
+
                         y_cor = math.sin(x*degree_increment) * (radius - (thickness/2))
                         y_cor = y_cor + startingpoints[1] 
+
+                        y_cor_plane = math.sin(x*degree_increment) * (radius - (thickness/2)-(D8-D7))
+                        y_cor_plane = y_cor_plane + startingpoints[1]
+
                         points_arc.append([x_cor, y_cor])
+                        left_side_plane.append([x_cor_plane, y_cor_plane])
 
                 points_arc.append([startingpoints[0]-radius, startingpoints[1]+radius-(thickness/2)])
                 endpoints.append([startingpoints[0]-radius, startingpoints[1]+radius-(thickness/2)])
@@ -256,6 +269,7 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
         elif(clock == "counter" and drive == "right"):
 
                 points_arc.append([startingpoints[0],startingpoints[1]-(thickness/2)])
+                
 
                 for x in range(0, resolution):
 
@@ -266,19 +280,31 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
                         y_cor = -y_cor + startingpoints[1] + radius
                         points_arc.append([x_cor, y_cor])
 
-                points_arc.append([startingpoints[0]+radius+(thickness/2), startingpoints[1]+radius]) ##todo
-                points_arc.append([startingpoints[0]+radius-(thickness/2), startingpoints[1]+radius]) ##todo 
+                points_arc.append([startingpoints[0]+radius+(thickness/2), startingpoints[1]+radius]) 
+                points_arc.append([startingpoints[0]+radius-(thickness/2), startingpoints[1]+radius])  
 
-                endpoints.append([startingpoints[0]+radius+(thickness/2), startingpoints[1]+radius]) ##todo
-                endpoints.append([startingpoints[0]+radius-(thickness/2), startingpoints[1]+radius]) ##todo 
-                
+                endpoints.append([startingpoints[0]+radius+(thickness/2), startingpoints[1]+radius]) 
+                endpoints.append([startingpoints[0]+radius-(thickness/2), startingpoints[1]+radius])  
+                temp_turn = []
                 for x in range(0, resolution):
                         x = resolution-x
                         x_cor = math.sin(x*degree_increment) * (radius -(thickness/2))
                         x_cor = x_cor + startingpoints[0]
+
+                        x_cor_plane = math.sin(x*degree_increment) * (radius -(thickness/2)-(D8-D7))
+                        x_cor_plane = x_cor_plane + startingpoints[0]
+
                         y_cor = math.cos(x*degree_increment) * (radius - (thickness/2))
                         y_cor = -y_cor + startingpoints[1] +radius
+
+                        y_cor_plane = math.cos(x*degree_increment) * (radius - (thickness/2)-(D8-D7))
+                        y_cor_plane = -y_cor_plane + startingpoints[1] +radius
                         points_arc.append([x_cor, y_cor])
+
+                        temp_turn.append([x_cor_plane, y_cor_plane])
+                temp_turn = temp_turn[::-1]
+                for x in temp_turn:
+                        left_side_plane.append(x)
 
                 points_arc.append([startingpoints[0],startingpoints[1]+(thickness/2)])
                 points_arc.append([startingpoints[0],startingpoints[1]-(thickness/2)])
@@ -292,8 +318,22 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
 
                         x_cor = math.sin(x*degree_increment) * (radius +(thickness/2))
                         x_cor = -x_cor + startingpoints[0]
+
+                        x_cor_plane = math.sin(x*degree_increment) * (radius +(thickness/2)+(D8-D7))
+                        x_cor_plane = -x_cor_plane + startingpoints[0]
+
+
+                        
+
+
                         y_cor = math.cos(x*degree_increment) * (radius + (thickness/2))
                         y_cor = -y_cor + startingpoints[1] + radius
+
+                        y_cor_plane = math.cos(x*degree_increment) * (radius + (thickness/2)+(D8-D7))
+                        y_cor_plane = -y_cor_plane + startingpoints[1] + radius
+
+
+                        left_side_plane.append([x_cor_plane, y_cor_plane])
                         points_arc.append([x_cor, y_cor])
 
                 points_arc.append([startingpoints[0]-radius-(thickness/2), startingpoints[1]+radius]) ##todo
@@ -320,23 +360,40 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
 
                         x_cor = math.cos(x*degree_increment) * (radius +(thickness/2))
                         x_cor = -x_cor + startingpoints[0]+radius
+
+                        x_cor_plane = math.cos(x*degree_increment) * (radius +(thickness/2) + (D8-D7))
+                        x_cor_plane = -x_cor_plane + startingpoints[0]+radius
+
                         y_cor = math.sin(x*degree_increment) * (radius + (thickness/2))
-                        y_cor = y_cor + startingpoints[1] 
+                        y_cor = y_cor + startingpoints[1]
+
+                        y_cor_plane = math.sin(x*degree_increment) * (radius + (thickness/2))
+                        y_cor_plane = y_cor_plane + startingpoints[1]  
+
                         points_arc.append([x_cor, y_cor])
+                        left_side_plane.append([x_cor_plane, y_cor_plane])
 
                 points_arc.append([startingpoints[0]+radius, startingpoints[1]+radius+(thickness/2)]) ##todo
                 points_arc.append([startingpoints[0]+radius, startingpoints[1]+radius-(thickness/2)])##todo 
                 endpoints.append([startingpoints[0]+radius, startingpoints[1]+radius+(thickness/2)]) ##todo
                 endpoints.append([startingpoints[0]+radius, startingpoints[1]+radius-(thickness/2)])##todo 
-                
+                temp_turn = []
+
                 for x in range(0, resolution):
                         x = resolution-x
                         x_cor = math.cos(x*degree_increment) * (radius -(thickness/2))
                         x_cor = -x_cor + startingpoints[0] +radius
+
+                      
                         y_cor = math.sin(x*degree_increment) * (radius - (thickness/2))
                         y_cor = y_cor + startingpoints[1]
+
+                    
+
+             
                         points_arc.append([x_cor, y_cor])
 
+              
                 points_arc.append([startingpoints[0]+(thickness/2),startingpoints[1]])
                 points_arc.append([startingpoints[0]- (thickness/2), startingpoints[1]])
         
@@ -383,7 +440,7 @@ G75*
 %ADD15C,0.00800*%
 %ADD17C,0.00100*%
 """
-        left_side_plane = []
+        
         file.write(init)
 
         ###Draw Straightpart 1###
@@ -399,8 +456,7 @@ G75*
         
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5,point_straight_6,point_straight_7,point_straight_8,point_straight_1]
         
-        for x in range(0,4):
-                left_side_plane.append(points_straight[x])
+    
                 
 
         print("CORNER POLYGONS _____________________")
@@ -417,12 +473,10 @@ G75*
 
 
         file.write("G36*\n")
-        circle, endpoints = drawarc([D1/2,D24], D22, D7, 100, "counter", "left")
-        for x in circle:
-                
+        circle, endpoints = drawarc([D1/2,D24], D22, D7, segments_circle, "counter", "left")
+        for x in circle:   
                 draw(x, "D01")
-        for x in range(0, segments_circle + 2):
-                left_side_plane.append(circle[x])
+       
 
         file.write("G37*\n")
 
@@ -435,8 +489,7 @@ G75*
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
         print(points_straight)
 
-        for x in range(2,4):
-                left_side_plane.append(points_straight[x])
+  
 
 
         file.write("G36*\n")
@@ -447,13 +500,12 @@ G75*
 
 
         file.write("G36*\n")
-        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, 100, "norm", "left")
+        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, segments_circle, "norm", "left")
         for x in circle:
                
                 draw(x, "D01")
         
-        for x in range(0, segments_circle + 2):
-                left_side_plane.append(circle[x])
+    
 
         file.write("G37*\n")
 
@@ -471,17 +523,15 @@ G75*
         for x in points_straight:
                 draw(x, "D01")
         file.write("G37*\n")
-        for x in range(2,4):
-                left_side_plane.append(points_straight[x])
+        
 
         file.write("G36*\n")
-        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, 100, "norm", "right")
+        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, segments_circle, "norm", "right")
         for x in circle:
                
                 draw(x, "D01")
 
-        for x in range(0, segments_circle + 2):
-                left_side_plane.append(circle[x])
+      
 
         file.write("G37*\n")
 
@@ -516,8 +566,7 @@ G75*
         for x in points_straight:
                 points_straight_mirror.append([x[0], D2 - x[1]])
         
-        for x in range(0,6):
-                left_side_plane.append(points_straight_mirror[x])
+     
         
 
         file.write("G36*\n")
@@ -529,14 +578,12 @@ G75*
 
 
         file.write("G36*\n")
-        circle, endpoints = drawarc([points_straight_mirror[6][0],points_straight_mirror[6][1]], D22, D7, 100, "counter", "right")
+        circle, endpoints = drawarc([points_straight_mirror[6][0],points_straight_mirror[6][1]], D22, D7, segments_circle, "counter", "right")
         for x in circle:
                
                 draw(x, "D01")
 
-        for x in range(segments_circle + 2, (2*segments_circle) + 2):
-                left_side_plane.append(circle[x])
-
+        
         file.write("G37*\n")
  
 
@@ -553,18 +600,14 @@ G75*
                 draw(x, "D01")
         file.write("G37*\n")
 
-        for x in range(2,4):
-                left_side_plane.append(points_straight[x])
-
-
+       
         file.write("G36*\n")
-        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, 100, "counter", "left")
+        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, segments_circle, "counter", "left")
         for x in circle:
                
                 draw(x, "D01")
 
-        for x in range(0, segments_circle + 2):
-                left_side_plane.append(circle[x])
+       
 
         file.write("G37*\n")
 
@@ -583,18 +626,14 @@ G75*
                 draw(x, "D01")
         file.write("G37*\n")
 
-        for x in range(2,4):
-                left_side_plane.append(points_straight[x])
+      
         
 
         file.write("G36*\n")
-        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, 100, "norm", "left")
+        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, segments_circle, "norm", "left")
         for x in circle:
                
                 draw(x, "D01")
-
-        for x in range(0, segments_circle + 2):
-                left_side_plane.append(circle[x])
         file.write("G37*\n")
 
         
@@ -621,11 +660,15 @@ G75*
         for x in points_straight_mirror:
                 draw(x, "D01")
         
-        for x in range(0,4):
-                left_side_plane.append(points_straight_mirror[x])
+        
+              
 
         file.write("G37*\n")
 
+        file.write("G36*\n")
+        for x in left_side_plane:
+                draw(x, "D01")
+        file.write("G37*\n")
 
         file.write(end)
         file.close()
@@ -634,9 +677,13 @@ G75*
         left_side_plane.append([0,D2])
         left_side_plane.append([0,0])
         left_side_plane.append(left_side_plane[0])
-
+        t = 0
         for x in left_side_plane:
-                plt.scatter(x[0],x[1], s = 0.4, color = "blue")
+                
+                plt.scatter(x[0],x[1], s = 8.0)
+                plt.annotate(str(t),(x[0],x[1]))
+                t = t + 1
+               
 
         
         plt.show()
