@@ -2,7 +2,7 @@ from ast import Global
 from decimal import ROUND_DOWN
 import math
 import tkinter as tk
-from turtle import left
+from turtle import left, right
 import weakref
 from zipfile import ZipFile
 import time
@@ -14,7 +14,7 @@ prefactor = 1
 ######################
 D1 = 25.4 * 1000
 D2 = 12.7 * 1000
-D3 = 9.53 * 1000 #SMA 9.53 SMP 5.84
+D3 = 5.84 * 1000 #SMA 9.53 SMP 5.84
 D4 = 2.79 * 1000
 D5 = 1.27 * 1000
 D6 = 0.25 * 1000
@@ -32,8 +32,8 @@ D18 = 0.4064 * 1000   #length cutout
 D19 =  0.6096 * 1000 #width cutout
 D22 =  2.5 * 1000 #Radius of big curves
 D24 = 9.0 * 1000 #Height of U-Shape short side
-D26 = 18.0 * 1000 #Length outer radiud outer radius
-segments_circle = 30
+D26 = 12.0 * 1000 #Length outer radiud outer radius
+segments_circle = 80
 straight_segment_1 = (D26/2) - (2*D22) 
 straight_segment_2 = (D2/2) - (3*D22) - D24
 middle_straight_via = D26 - (2*D22)
@@ -459,20 +459,20 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
                         x_cor = math.sin(x*degree_increment) * (radius -(thickness/2))
                         x_cor = x_cor + startingpoints[0]
 
-                        x_cor_plane = math.sin(x*degree_increment) * (radius -(D8/2))
-                        x_cor_plane = x_cor_plane + startingpoints[0]
-
-                        x_cor_plane_r = math.sin(x*degree_increment) * (radius +(D8/2))
+                        x_cor_plane_r = math.sin(x*degree_increment) * (radius -(D8/2))
                         x_cor_plane_r = x_cor_plane_r + startingpoints[0]
+
+                        x_cor_plane = math.sin(x*degree_increment) * (radius +(D8/2))
+                        x_cor_plane = x_cor_plane + startingpoints[0]
 
                         y_cor = math.cos(x*degree_increment) * (radius - (thickness/2))
                         y_cor = y_cor + startingpoints[1] -radius
 
-                        y_cor_plane = math.cos(x*degree_increment) * (radius - (D8/2))
-                        y_cor_plane = y_cor_plane + startingpoints[1] -radius
-
-                        y_cor_plane_r = math.cos(x*degree_increment) * (radius + (D8/2))
+                        y_cor_plane_r = math.cos(x*degree_increment) * (radius - (D8/2))
                         y_cor_plane_r = y_cor_plane_r + startingpoints[1] -radius
+
+                        y_cor_plane = math.cos(x*degree_increment) * (radius + (D8/2))
+                        y_cor_plane = y_cor_plane + startingpoints[1] -radius
                         points_arc.append([x_cor, y_cor])
 
                         temp_turn.append([x_cor_plane, y_cor_plane])
@@ -493,11 +493,7 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
                 y_cors.append(x[1])
 
 
-        print("asöodkasüpdkaüskdüaskd")
-        print(points_arc)
-        plt.plot(x_cors, y_cors)
-        plt.scatter(startingpoints[0],startingpoints[1], color = "green")
-        plt.scatter(points_arc[1][0],points_arc[1][1], color = "red")
+      
         
         return points_arc, endpoints
 
@@ -547,7 +543,10 @@ G75*
         
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5,point_straight_6,point_straight_7,point_straight_8,point_straight_1]
         
-    
+        left_side_plane.append([((D1-D26)/2)-(D8/2),0])
+        right_side_plane.append([((D1-D26)/2)+(D8/2),0])
+        
+        
                 
 
         print("CORNER POLYGONS _____________________")
@@ -561,11 +560,7 @@ G75*
         file.write("G37*\n")
         
         ###Draw Straightpart 1 End###
-        left_side_plane.append([(D1/2) - (D8/2), 0])
-        left_side_plane.append([(D1/2) - (D8/2), D24])
-
-        right_side_plane.append([(D1/2) + (D8/2), 0])
-        right_side_plane.append([(D1/2) + (D8/2), D24])
+       
 
         file.write("G36*\n")
         circle, endpoints = drawarc([point_straight_4[0]+(D7/2), point_straight_4[1]], D22, D7, segments_circle, "norm", "right")
@@ -583,6 +578,7 @@ G75*
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
         print(points_straight)
 
+    
   
 
 
@@ -608,7 +604,7 @@ G75*
         point_straight_1 = endpoints[0]
         point_straight_2 = [point_straight_1[0]-((D7-D10)/2), point_straight_1[1] - D9]
         point_straight_3 = [point_straight_2[0], point_straight_2[1]- D16]
-        point_straight_4 = [point_straight_3[0]+((D7-10)/2), point_straight_3[1] - D9]
+        point_straight_4 = [point_straight_3[0]+((D7-D10)/2), point_straight_3[1] - D9]
         point_straight_5 = [point_straight_4[0]-D7, point_straight_4[1]]
         point_straight_6 = [point_straight_5[0] + ((D7-D10)/2), point_straight_5[1] + D9]
         point_straight_7 = [point_straight_6[0], point_straight_6[1] + D16]
@@ -637,6 +633,23 @@ G75*
         point_straight_8 = [point_straight_7[0]+((D7-D6)/2), point_straight_7[1]]
         point_straight_9 = point_straight_1
 
+        left_side_plane.append([(D26/2)+(D1/2)+(D11/2), D24-D9])
+        left_side_plane.append([(D26/2)+(D1/2)+(D11/2), D24-D9-D16])
+        left_side_plane.append([(D26/2)+(D1/2)+(D8/2), D24-D9-D16-D9])
+        left_side_plane.append([(D26/2)+(D1/2)+(D8/2), 0])
+        left_side_plane.append([D1,0])
+        left_side_plane.append([D1, D2])
+        left_side_plane.append([0, D2])
+        left_side_plane.append([0,0])
+        left_side_plane.append([((D1-D26)/2)-(D8/2),0])
+
+
+        right_side_plane.append([(D26/2)+(D1/2)-(D11/2), D24-D9])
+        right_side_plane.append([(D26/2)+(D1/2)-(D11/2), D24-D9-D16])
+        right_side_plane.append([(D26/2)+(D1/2)-(D8/2), D24-D9-D16-D9])
+        right_side_plane.append([(D26/2)+(D1/2)-(D8/2), 0])
+        right_side_plane.append([((D1-D26)/2)+(D8/2),0])
+        
         
 
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5, point_straight_6, point_straight_7, point_straight_8, point_straight_9]
@@ -647,51 +660,27 @@ G75*
                draw(x, "D01")
         file.write("G37*\n")
       
-
-      
-
-
-       
+        
+        t = 0
         
         
+        file.write("G36*\n")
+        for x in left_side_plane:
+                draw(x, "D01")
+        file.write("G37*\n")
 
-        
-     
-
-        
-        
- 
-        
-     
-        
-
-
-      
- 
-
-        
-
-
-
-    
-
-        
-
-      
-
-      
-        
-       
-     
-        
-       
-
+        file.write("G36*\n")
+        for x in right_side_plane:
+                plt.scatter(x[0],x[1], s = 8.0)
+                plt.annotate(str(t),(x[0],x[1]))
+                t = t + 1
+                draw(x, "D01")
+        file.write("G37*\n")
 
         file.write(end)
-        file.close()
-
+        file.close() 
+        plt.show()
         
-               
 
      
         
@@ -802,18 +791,19 @@ def groundplane(filename):
         file.write(init)
         file.write("G36*\n")
         p1 = [0,0]
-        pcc1 = [(D1/2)-(D18/2), 0]
-        pcc2 = [pcc1[0], D19]
-        pcc3 = [(D1/2)+(D18/2), D19]
-        pcc4 = [(D1/2)+(D18/2), 0]
-        p2 = [D1,0]
-        p3 = [D1,D2]
-        pc1 = [(D1/2)+(D18/2), D2]
-        pc2 = [pc1[0], (D2-D19)]
-        pc3 = [(D1/2)-(D18/2), pc2[1]]
-        pc4 = [(D1/2)-(D18/2), D2]
-        p4 = [0,D2]
-        pointsgp = [p1,pcc1,pcc2,pcc3,pcc4,p2,p3,pc1,pc2,pc3,pc4,p4,p1]
+        p2 = [(D1/2)-(D26/2)-(D18/2), 0]
+        p3 = [p2[0], D19]
+        p4 = [p3[0] + D18, p3[1]]
+        p5 = [p4[0], 0]
+        p6 = [(D1/2)+(D26/2)-(D18/2), 0]
+        p7 = [p6[0], p6[1]+D19]
+        p8 = [p7[0] + D18, p7[1]]
+        p9 = [p8[0], 0]
+        p10 = [D1, 0]
+        p11 = [D1, D2]
+        p12 = [0, D2]
+        p13 = p1
+        pointsgp = [p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13]
         for x in pointsgp:
                 #print("X%dY%d%s*\n"%(x[0],x[1], "D1"))
                 file.write("X%dY%d%s*\n"%(x[0],x[1], "D1"))
