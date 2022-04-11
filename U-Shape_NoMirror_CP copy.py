@@ -152,7 +152,7 @@ Trace_viapos = np.array(range(Trace_numvias))*(D13/1000) + Tracer_disfirstvia
 
 Seg_endnumvia=np.zeros_like(Seg_types)
 Via_coords=[]
-Tracer_x=D1/2000 #This is a trace start parameter
+Tracer_x=((D1/2)-(D26/2))/1000 #This is a trace start parameter
 Tracer_y=0 #This is a trace start parameter
 Tracer_dir=np.pi/2 #This is a trace start parameter
 for seg_idx,seg_type in enumerate(Seg_types):
@@ -606,11 +606,15 @@ G75*
 
 
         point_straight_1 = endpoints[0]
-        point_straight_2 = 
-        point_straight_3 = 
-        point_straight_4 =
-        point_straight_5 = 
-        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
+        point_straight_2 = [point_straight_1[0]-((D7-D10)/2), point_straight_1[1] - D9]
+        point_straight_3 = [point_straight_2[0], point_straight_2[1]- D16]
+        point_straight_4 = [point_straight_3[0]+((D7-10)/2), point_straight_3[1] - D9]
+        point_straight_5 = [point_straight_4[0]-D7, point_straight_4[1]]
+        point_straight_6 = [point_straight_5[0] + ((D7-D10)/2), point_straight_5[1] + D9]
+        point_straight_7 = [point_straight_6[0], point_straight_6[1] + D16]
+        point_straight_8 = endpoints[1]
+        point_straight_9 = point_straight_1
+        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5,point_straight_6, point_straight_7, point_straight_8, point_straight_9]
         print(points_straight)
         file.write("G36*\n")
 
@@ -619,208 +623,77 @@ G75*
         file.write("G37*\n")
         
 
+       
+        
+        
+        overall_straight_right = D24-(2*D9)-D16
+        point_straight_1 = point_straight_4
+        point_straight_2 = point_straight_5
+        point_straight_3 = [point_straight_2[0], point_straight_2[1]-overall_straight_right+D5]
+        point_straight_4 = [point_straight_3[0]+((D7-D6)/2), point_straight_3[1]]
+        point_straight_5 = [point_straight_4[0], 0]
+        point_straight_6 = [point_straight_5[0] + D6, 0]
+        point_straight_7 = [point_straight_6[0], point_straight_4[1]]
+        point_straight_8 = [point_straight_7[0]+((D7-D6)/2), point_straight_7[1]]
+        point_straight_9 = point_straight_1
+
+        
+
+        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5, point_straight_6, point_straight_7, point_straight_8, point_straight_9]
+        print(points_straight)
         file.write("G36*\n")
-        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, segments_circle, "norm", "right")
-        for x in circle:
-               
-                draw(x, "D01")
+
+        for x in points_straight:
+               draw(x, "D01")
+        file.write("G37*\n")
+      
 
       
 
-        file.write("G37*\n")
 
-
-        #gohere
-        straight_middle = (middle_straight_via - (2*D9) - D16)/2
-        point_straight_1 = endpoints[1]
-        point_straight_2 = [point_straight_1[0]+straight_middle, point_straight_1[1]]
-        point_straight_3 = [point_straight_2[0] + D9, point_straight_2[1] + ((D7-D10)/2)]
-        point_straight_4 = [point_straight_3[0] + D16, point_straight_3[1]]
-        point_straight_5 = [point_straight_4[0]+D9, point_straight_1[1]]
-        point_straight_6 = [point_straight_5[0] + straight_middle, point_straight_5[1]]
-        point_straight_7 = [point_straight_6[0], D2/2] 
-        point_straight_8 = [point_straight_1[0], D2/2]
-        point_straight_9 = endpoints[1]
-
-
-        left_side_plane.append([(D1/2)-(D16/2)-D9, (D2/2)+(D8/2)])
-        left_side_plane.append([(D1/2)-(D16/2),(D2/2)+(D11/2)])
-        left_side_plane.append([(D1/2)+(D16/2),(D2/2)+(D11/2)])
-        left_side_plane.append([(D1/2)+(D16/2)+D9, (D2/2)+(D8/2)])
-
-        right_side_plane.append([(D1/2)-(D16/2)-D9, (D2/2)-(D8/2)])
-        right_side_plane.append([(D1/2)-(D16/2),(D2/2)-(D11/2)])
-        right_side_plane.append([(D1/2)+(D16/2),(D2/2)-(D11/2)])
-        right_side_plane.append([(D1/2)+(D16/2)+D9, (D2/2)-(D8/2)])
+       
+        
         
 
         
-        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5, point_straight_6, point_straight_7, point_straight_8, point_straight_9]
-        
-        
-        print(points_straight)
-        
-        file.write("G36*\n")
+     
 
-        for x in points_straight:
-                draw(x, "D01")
-        file.write("G37*\n")
         
-        points_straight_mirror = []
-        for x in points_straight:
-                points_straight_mirror.append([x[0], D2 - x[1]])
+        
+ 
         
      
         
 
-        file.write("G36*\n")
 
-        for x in points_straight_mirror:
-                draw(x, "D01")
-        file.write("G37*\n")
-
-
-
-        file.write("G36*\n")
-        circle, endpoints = drawarc([points_straight_mirror[6][0],points_straight_mirror[6][1]], D22, D7, segments_circle, "counter", "right")
-        for x in circle:
-               
-                draw(x, "D01")
-
-        
-        file.write("G37*\n")
+      
  
 
-        point_straight_1 = endpoints[0]
-        point_straight_2 = [point_straight_1[0], point_straight_1[1]+straight_segment_2]
-        point_straight_3 = [point_straight_2[0]-D7, point_straight_2[1]]
-        point_straight_4 = endpoints[1]
-        point_straight_5 = endpoints[0]
-        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
-        print(points_straight)
-        file.write("G36*\n")
-
-        for x in points_straight:
-                draw(x, "D01")
-        file.write("G37*\n")
-
-       
-        file.write("G36*\n")
-        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, segments_circle, "counter", "left")
-        for x in circle:
-               
-                draw(x, "D01")
-
-       
-
-        file.write("G37*\n")
-
-
-
-        point_straight_1 = endpoints[1]
-        point_straight_2 = [point_straight_1[0]-straight_segment_1, point_straight_1[1]]
-        point_straight_3 = [point_straight_2[0], point_straight_2[1]-D7]
-        point_straight_4 = endpoints[0]
-        point_straight_5 = endpoints[1]
-        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
-        print(points_straight)
-        file.write("G36*\n")
-
-        for x in points_straight:
-                draw(x, "D01")
-        file.write("G37*\n")
-
-      
         
 
-        file.write("G36*\n")
-        circle, endpoints = drawarc([(point_straight_2[0] + point_straight_3[0])/2,(point_straight_2[1] + point_straight_3[1])/2], D22, D7, segments_circle, "norm", "left")
-        for x in circle:
-               
-                draw(x, "D01")
-        file.write("G37*\n")
 
-       
+
+    
 
         
-
-        point_straight_1 = [(D1/2)-(D6/2),0]
-        point_straight_2 = [point_straight_1[0], D5]
-        point_straight_3 = [point_straight_2[0]-((D7-D6)/2), D5]
-        point_straight_4 = [point_straight_3[0],D24]
-        point_straight_5 = [point_straight_4[0]+D7, D24]
-        point_straight_6 = [point_straight_5[0], D5]
-        point_straight_7 =  [point_straight_6[0]- ((D7-D6)/2), D5]
-        point_straight_8 = [point_straight_1[0]+D6, 0]
-        
-        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5,point_straight_6,point_straight_7,point_straight_8,point_straight_1]
-        points_straight_mirror = []
-
-        for x in points_straight:
-                points_straight_mirror.append([x[0], D2-x[1]])
-        print("CORNER POLYGONS _____________________")
-        print(points_straight)
-        
-        file.write("G36*\n")
-
-        for x in points_straight_mirror:
-                draw(x, "D01")
-        
-        
-              
-
-        file.write("G37*\n")
 
       
 
       
         
-        plt.show()
-        left_side_plane.append([(D1/2)-(D8/2), D2])
-        left_side_plane.append([0,D2])
-        left_side_plane.append([0,0])
-        left_side_plane.append(left_side_plane[0])
-
-        right_side_plane.append([(D1/2)+(D8/2), D2])
-        right_side_plane.append([D1,D2])
-        right_side_plane.append([D1,0])
-        right_side_plane.append(right_side_plane[0])
-        t = 0
+       
+     
         
-        """
-        file.write("G36*\n")
-        for x in left_side_plane:
-                draw(x, "D01")
-        file.write("G37*\n")
-
-        file.write("G36*\n")
-        for x in right_side_plane:
-                draw(x, "D01")
-        file.write("G37*\n")
-
-        """
+       
 
 
         file.write(end)
         file.close()
 
-        for x in right_side_plane:
-                
-                plt.scatter(x[0],x[1], s = 8.0)
-                plt.annotate(str(t),(x[0],x[1]))
-                t = t + 1
-
-        for x in left_side_plane:
         
-                plt.scatter(x[0],x[1], s = 8.0)
-                plt.annotate(str(t),(x[0],x[1]))
-                t = t + 1
-                
                
 
-        
-        plt.show()
-
+     
         
 featurelayer(".gtl")
 
@@ -905,12 +778,11 @@ def drillfiles():
                 file.write("""X%sY%s\n"""%(toinchtz2(via_x),toinchtz2(via_y)))
                 print("X%sY%s"%(toinchtz2(via_x),toinchtz2(via_y)))
 
-        h1 = [(D1-D3)/2, D4]
-        h1 = [h1[0]/1000, h1[1]/1000]
-        h2 = [h1[0]+(D3/1000), h1[1]]
-        h3 = [h1[0], h1[1]+((D2-D4-D4)/1000)]
-        h4 = [h2[0], h3[1]]
-        #print(h1, h2, h3, h4)
+        h1 = [((D1/2)-(D26/2)-(D3/2))/1000, D4/1000]
+        h2 = [((D1/2)-(D26/2)+(D3/2))/1000, D4/1000]
+        h3 = [((D1/2)+(D26/2)+(D3/2))/1000, D4/1000]
+        h4 = [((D1/2)+(D26/2)-(D3/2))/1000, D4/1000]
+        print(h1, h2, h3, h4)
 
         #coordinates
         file.write("T02\n")
