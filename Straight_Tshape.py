@@ -15,18 +15,23 @@ D4 = 2.79 * 1000
 D5 = 1.27 * 1000
 D6 = 0.25 * 1000
 D7 =  0.2794 * 1000
-D8  = 0.61 * 1000
+D8  = 1.0 * 1000
 D9  = 2 * 1000
 D10 = 0.0762 * 1000
-D11 = 0.3302 * 1000
+D11 = 0.6 * 1000
 D12 = 1.2 #doublecheck
 D13 = 0.6
 D14 = 0.15
-D16 = 10 * 1000
+D16 = 5.0 * 1000
 D17 = 2.06
 D18 = 0.4064 * 1000   #length cutout
 D19 =  0.6096 * 1000 #width cutout
-
+D26 = 0.5 *1000#length head x
+D27 = 0.2 * 1000 #width head y
+D28 = 0.1 * 1000 #gap size
+D29 = 10.0 * 1000 #Head to head size
+global left_side_plane
+left_side_plane = []
 
 def overwrite():
         global D1
@@ -157,104 +162,105 @@ def featurelayer(laynam): #Layer with Traces e.g Top and Bottom Layer
         file.write(init)
         ### Initialize File END ###
 
-        ###left side (GND PLANE)###
-        p1 = [0,0]
-        p2 = [p1[0], p1[1] + D2]
-        p3 = [p2[0]+(D1/2)-(D8/2), p2[1] + 0]
-        p4 = [(D1/2)-(D8/2),(D2/2)+(D16/2)+D9]
-        p5 = [p4[0]+((D8-D7)/2), p4[1]-D9]
-        p6 = [p5[0]+0,p5[1]-D16]
-        p7 = [p4[0], p4[1]-D16-(2*D9)]
-        p8 = [p7[0], 0]
-        points =  [p1,p2,p3,p4,p5,p6,p7,p8,p1]
+        point_straight_1 = [(D1/2)-(D6/2),0]
+        point_straight_2 = [point_straight_1[0], D5]
+        point_straight_3 = [point_straight_2[0]-((D7-D6)/2), D5]
+        point_straight_4 = [point_straight_3[0], (D2-D29-4*D27-2*D28)/2]
+        point_straight_5 = [point_straight_4[0]-((D26-D7)/2), point_straight_4[1]]
+        point_straight_6 = [point_straight_5[0], point_straight_5[1]+D27]
+        point_straight_7 = [point_straight_6[0]+D26, point_straight_6[1]]
+        point_straight_8 = [point_straight_7[0], point_straight_7[1]-D27]
+        point_straight_9 = [point_straight_4[0] + D7, point_straight_8[1]]
+        point_straight_10 = [point_straight_3[0]+D7,point_straight_3[1]]
+        point_straight_11 = [point_straight_2[0]+D6, point_straight_2[1]]
+        point_straight_12 = [point_straight_11[0], 0]
+        point_straight_13 = point_straight_1
+
+        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5,point_straight_6,point_straight_7,point_straight_8,point_straight_9,point_straight_10,point_straight_11,point_straight_12,point_straight_13]
         
-        print("G36*\n")
         file.write("G36*\n")
 
-        draw(p1, "D02")
-        for x in points:
+        for x in points_straight:
                 draw(x, "D01")
-        print("G37*\n")
+
         file.write("G37*\n")
-        ###left side (GND PLANE) END###
-        
-        ###right side (GND PLANE)###
-        print("G36*\n")
-        file.write("G36*\n")   
-        pointsr = []
-        middle = D1/2
-        middle2 = D2/2
-        for x in points: # Mirror Left side on middle line
-                pointsr.append([(middle-x[0])+middle, x[1]])
+        points_mirrored = []
+        for x in points_straight:
+                points_mirrored.append([x[0], D2-x[1]])
 
-        draw(pointsr[0], "D02")
-        for x in pointsr:
-                draw(x, "D01")
-        print("G37*\n")
-        file.write("G37*\n") 
-        ###right side (GND PLANE) END###
-
-        ### Trace Drawing ###
-
-        # Define Points of bottom left quarter 
-        pm1 = [(D1/2)-(D6/2), 0]
-        pm2 = [pm1[0], D5]
-        pm3 = [(D1/2)-(D7/2), D5]
-        pm4 = [pm3[0], (D2/2)-(D16/2)-D9]
-        pm5 = [(D1/2)-(D10/2), (D2/2)-(D16/2)]
-        pm6 = [pm5[0], (D2/2)]
-        pm7 = [D1/2, D2/2]
-        pm8 = [D1/2, 0]
-        pointsm = [pm1,pm2,pm3,pm4,pm5,pm6,pm7,pm8,pm1]
-        
-        print("G36*\n")
         file.write("G36*\n")
+
+        for x in points_mirrored:
+                draw(x, "D01")
+
+        file.write("G37*\n")
+
+        point_straight_1 = [point_straight_7[0], point_straight_7[1] + D28]
+        point_straight_2 = [point_straight_1[0], point_straight_1[1] + D27]
+        point_straight_3 = [point_straight_2[0]-((D26-D7)/2), point_straight_2[1]]
+        point_straight_4 = [point_straight_3[0], point_straight_3[1]+((D29-D16)/2)]
+        point_straight_5 = [point_straight_4[0]-((D7-D10)/2), point_straight_4[1]]
+        point_straight_6 = [point_straight_5[0], D2/2]
+        point_straight_7 = [point_straight_6[0]-D10, point_straight_6[1]]
+        point_straight_88 = [point_straight_5[0]-D10, point_straight_5[1]]
+        point_straight_8 = [point_straight_4[0]-D7, point_straight_4[1]]
+        point_straight_9 = [point_straight_8[0], point_straight_3[1]]
+        point_straight_10 = [point_straight_2[0]-D26, point_straight_2[1]]
+        point_straight_11 = [point_straight_10[0],point_straight_1[1]]
+        point_straight_12 = point_straight_1
         
-        draw(pointsm[0], "D02") #Draw bottom left quarter
-        for x in pointsm:
+        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5,point_straight_6,point_straight_7,point_straight_88,point_straight_8,point_straight_9,point_straight_10,point_straight_11, point_straight_12]
+
+        file.write("G36*\n")
+
+        for x in points_straight:
                 draw(x, "D01")
 
-        print("G37*\n")
         file.write("G37*\n")
+
+        points_mirrored = []
+        for x in points_straight:
+                points_mirrored.append([x[0], D2-x[1]])
+
+        file.write("G36*\n")
+
+        for x in points_mirrored:
+                draw(x, "D01")
+
+        file.write("G37*\n")
+
+
+        point_plane_1 = [(D1/2)-(D8/2), 0]
+        point_plane_2 = [point_plane_1[0], (D2-D29)/2]
+        point_plane_3 = [(D1/2)-((D11-D10)/2), (D2/2)-(D16/2)]
+        point_plane_4 = [point_plane_3[0], point_plane_3[1]+D16]
+        point_plane_5 = [point_plane_2[0], point_plane_2[1]+D29]
+        point_plane_6 = [point_plane_1[0], D2]
+        point_plane_7 = [0,D2]
+        point_plane_8 = [0,0]
+
+
+        points_plane = [point_plane_1,point_plane_2,point_plane_3,point_plane_4,point_plane_5,point_plane_6,point_plane_7,point_plane_8,point_plane_1]
         
-        print("G36*\n")
         file.write("G36*\n")
-        pointsmr = []
-        for x in pointsm: # Create Points for bottom right quarter
-                pointsmr.append([(middle-x[0])+middle, x[1]])
 
-        draw(pointsmr[0], "D02") # Draw bottom right quarter
-        for x in pointsmr:
+        for x in points_plane:
                 draw(x, "D01")
 
-        print("G37*\n")
         file.write("G37*\n")
-        
-        print("G36*\n")
-        file.write("G36*\n")
-        pointsmu = []
-        for x in pointsm: # Create Points for top right quarter
-                pointsmu.append([x[0],(middle2-x[1])+middle2])
 
-        draw(pointsmu[0], "D02") # Draw top right quarter
-        for x in pointsmu:
+
+        points_mirrored_plane = []
+        for x in points_plane:
+                points_mirrored_plane.append([D1 - x[0], x[1]])
+
+        file.write("G36*\n")
+
+        for x in points_mirrored_plane:
                 draw(x, "D01")
 
-        print("G37*\n")
         file.write("G37*\n")
-       
-        print("G36*\n")
-        file.write("G36*\n")
-        pointsmur = []
-        for x in pointsm: # Create Points for top left quarter
-                pointsmur.append([(middle-x[0])+middle,(middle2-x[1])+middle2])
 
-        draw(pointsmur[0], "D02") # Draw top left quarter
-        for x in pointsmur:
-                draw(x, "D01")
-
-        print("G37*\n")
-        file.write("G37*\n")
 
         print(end)
         file.write(end)
