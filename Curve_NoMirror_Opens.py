@@ -157,6 +157,60 @@ Via_coords=[]
 Tracer_x=D1/2000 #This is a trace start parameter
 Tracer_y=0 #This is a trace start parameter
 Tracer_dir=np.pi/2 #This is a trace start parameter
+
+Exclusion_width = 2* D12/1000
+
+def allow_ground_via(x,y,Seg_types,Seg_dims,Seg_lengths,Tracer_x_passed,Tracer_y_passed,Tracer_dir_passed,Exclusion_width):
+    allow_via = True
+    Tracer_x = Tracer_x_passed
+    Tracer_y = Tracer_y_passed
+    Tracer_dir = Tracer_dir_passed
+    for seg_idx,seg_type in enumerate(Seg_types):
+        if Seg_types[seg_idx]==0:
+            x1=Tracer_x-Exclusion_width/2*np.sin(Tracer_dir)
+            x2=Tracer_x+Exclusion_width/2*np.sin(Tracer_dir)+Seg_dims[seg_idx]*np.cos(Tracer_dir)
+            y1=Tracer_y-Exclusion_width/2*np.cos(Tracer_dir)
+            y2=Tracer_y+Exclusion_width/2*np.cos(Tracer_dir)+Seg_dims[seg_idx]*np.sin(Tracer_dir)
+            if ((x-x1)*(x-x2)<0) and ((y-y1)*(y-y2)<0):
+                allow_via = False
+        elif Seg_types[seg_idx]==1:
+            arc_center_x=Tracer_x+np.cos(Tracer_dir-np.pi/2)*Seg_dims[seg_idx]
+            arc_center_y=Tracer_y+np.sin(Tracer_dir-np.pi/2)*Seg_dims[seg_idx]
+            seg1=np.array([Tracer_x-arc_center_x,Tracer_y-arc_center_y])
+            end_x=Tracer_x+np.cos(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            end_y=Tracer_y+np.sin(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            seg2=np.array([end_x-arc_center_x,end_y-arc_center_y])
+            seg=np.array([x-arc_center_x,y-arc_center_y])
+            if (np.dot(seg,seg1)>=0) and (np.dot(seg,seg2)>=0): #outisde this quarter plane there is no exclusion
+                rad_dist = np.sqrt(seg[0]**2+seg[1]**2)
+                if abs(rad_dist-Seg_dims[seg_idx])<Exclusion_width/2:
+                       allow_via = False
+        else:
+            arc_center_x=Tracer_x+np.cos(Tracer_dir+np.pi/2)*Seg_dims[seg_idx]
+            arc_center_y=Tracer_y+np.sin(Tracer_dir+np.pi/2)*Seg_dims[seg_idx]
+            seg1=np.array([Tracer_x-arc_center_x,Tracer_y-arc_center_y])
+            end_x=Tracer_x+np.cos(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            end_y=Tracer_y+np.sin(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            seg2=np.array([end_x-arc_center_x,end_y-arc_center_y])
+            seg=np.array([x-arc_center_x,y-arc_center_y])
+            if (np.dot(seg,seg1)>=0) and (np.dot(seg,seg2)>=0): #outisde this quarter plane there is no exclusion
+                rad_dist = np.sqrt(seg[0]**2+seg[1]**2)
+                if abs(rad_dist-Seg_dims[seg_idx])<Exclusion_width/2:
+                       allow_via = False
+        #find parameters for next segment
+        if Seg_types[seg_idx]==0:
+            Tracer_x=Tracer_x+np.cos(Tracer_dir)*Seg_dims[seg_idx]
+            Tracer_y=Tracer_y+np.sin(Tracer_dir)*Seg_dims[seg_idx]
+        elif Seg_types[seg_idx]==1:
+            Tracer_x=Tracer_x+np.cos(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            Tracer_y=Tracer_y+np.sin(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            Tracer_dir=Tracer_dir-np.pi/2
+        else:
+            Tracer_x=Tracer_x+np.cos(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            Tracer_y=Tracer_y+np.sin(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            Tracer_dir=Tracer_dir+np.pi/2
+    return allow_via
+
 for seg_idx,seg_type in enumerate(Seg_types):
     Seg_endnumvia[seg_idx] = np.searchsorted(Trace_viapos,Trace_cumlength[seg_idx])
 print(Seg_endnumvia)
@@ -200,7 +254,9 @@ for seg_idx,seg_type in enumerate(Seg_types):
         Tracer_dir=Tracer_dir+np.pi/2
     Tracer_disfirstvia=(D13/1000)-Seg_lengths[seg_idx]+(Tracer_disfirstvia+(Seg_endnumvia[seg_idx]-1)*(D13/1000))
 
-
+Tracer_x=D1/2000 #This is a trace start parameter
+Tracer_y=0 #This is a trace start parameter
+Tracer_dir=np.pi/2 #This is a trace start parameter
 
 init =  """G04*
 G04*
@@ -837,14 +893,17 @@ def drillfiles():
         file.write("%\n")
         file.write("T01\n")
 
-
+        for via_x in np.arange(0.4,12.3,0.7):
+                for via_y in np.arange(0.4,25.0,0.7):
+                        if allow_ground_via(via_x,via_y,Seg_types,Seg_dims,Seg_lengths,Tracer_x,Tracer_y,Tracer_dir,Exclusion_width):
+                                file.write("""X%sY%s\n"""%(toinchtz2(via_x),toinchtz2(via_y)))
 
         for via_idx,via_coord in enumerate(Via_coords):
                 via_x=via_coord[0]-np.cos(via_coord[2])*D12/2000
                 via_y=via_coord[1]-np.sin(via_coord[2])*D12/2000
                 print("via L" + str(via_idx) + "-------------> " + str(via_x) + ", " + str(via_y))
-                print("before--->" + str(via_x))
-                print("after----> " + str(toinchtz2(via_x)))
+                #print("before--->" + str(via_x))
+                #print("after----> " + str(toinchtz2(via_x)))
                 file.write("""X%sY%s\n"""%(toinchtz2(via_x),toinchtz2(via_y)))
                 print("X%sY%s"%(toinchtz2(via_x),toinchtz2(via_y)))
                 via_x=via_coord[0]+np.cos(via_coord[2])*D12/2000
