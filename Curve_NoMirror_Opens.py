@@ -26,7 +26,7 @@ D11 = 0.3302 * 1000
 D12 = 1.0 * 1000 #doublecheck #changed here D12 and D13 for consistency with new function, any issue?
 D13 = 0.5 * 1000
 D14 = 0.15
-D16 = 5.0 * 1000
+D16 = 2.5 * 1000
 D17 = 2.06
 D18 = 0.4064 * 1000   #length cutout
 D19 =  0.6096 * 1000 #width cutout
@@ -1054,7 +1054,7 @@ def mechanical(filename,initin):
                 points_cut_mirror.append([x[0], D2-x[1]])
 
         file.write("X%dY%d%s*\n"%(points_cut_mirror[0][0],points_cut_mirror[0][1], "D02"))
-        
+
         for x in points_cut_mirror:
 
                 file.write("X%dY%d%s*\n"%(x[0],x[1], "D01"))
