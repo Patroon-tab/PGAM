@@ -12,27 +12,28 @@ basename = "layer"
 
 prefactor = 1
 ######################
-D1 = 25.4 * 1000
-D2 = 12.7 * 1000
-D3 = 5.84 * 1000 #SMA 9.53 SMP 5.84
-D4 = 2.79 * 1000
-D5 = 1.27 * 1000
-D6 = 0.25 * 1000
-D7 =  0.2794 * 1000
-D8  = 0.61 * 1000
-D9  = 0.5 * 1000
-D10 = 0.0762 * 1000
-D11 = 0.3302 * 1000
-D12 = 1.0 * 1000 #doublecheck #changed here D12 and D13 for consistency with new function, any issue?
-D13 = 0.5 * 1000
-D14 = 0.15
-D16 = 2.5 * 1000
-D17 = 2.06
-D18 = 0.4064 * 1000   #length cutout
-D19 =  0.6096 * 1000 #width cutout
-D22 =  2.5 * 1000 #Radius of big curves
-D24 = 9.0 * 1000 #Height of U-Shape short side
-D26 = 12.0 * 1000 #Length outer radiud outer radius
+D1 = 25.4 * 1000 #Checked
+D2 = 12.7 * 1000 #Checked
+D3 = 5.84 * 1000 #SSMA = 9.53 #1.85 =  5.84
+D4 = 2.79 * 1000 #Checked
+D5 = 0.762 * 1000 #SSMA = 1.27mm #1.85 = 0.762mm #awaiting confirmation #Checked
+D6 = 0.25 * 1000 #SSMA = 0.25 #1.86 = 0.25 #Checked
+D7 =  0.2794 * 1000 #Checked
+D8  = 0.61 * 1000 #Checked
+D9  = 0.3 * 1000 #Checked
+D10 = 0.0762 * 1000 #Checked
+D11 = 0.3302 * 1000 #Checked
+D12 = 1.0 * 1000 #Checked
+D13 = 0.45 * 1000 #Checked
+D14 = 0.15 #Checked
+D16 = 2.0 * 1000 #2mm,5mm
+D17 = 2.06 #SSMA = 1.98 #1.85 = 2.06 #Checked
+D18 = 0.0 * 1000   #y dim GND cutout #1.85 = no antipad #SSMA = 0.4064 #Checked
+D19 =  0.0 * 1000 #x dim GND Cutout #1.85 = no antipad #SSMA = 0.508 #Checked
+D22 =  2.5 * 1000 #Checked
+D24 = 9.0 * 1000 #Height of U-Shape short side #9.0mm #Checked
+D26 = 15.6 * 1000 #Length outer radiud outer radius #Checked
+D40 = 4.142 #Connector Height
 segments_circle = 80
 straight_segment_1 = (D26/2) - (2*D22) 
 straight_segment_2 = (D2/2) - (3*D22) - D24
@@ -598,8 +599,25 @@ G75*
     
 
         file.write("G37*\n")
+        """
+        #addd extracut
+        length_extension = D24-4.142-(D9)-D16
 
+        points_straight = []
+        point_straight_1 = endpoints[0]
+        point_straight_2 = [point_straight_1[0], point_straight_1[1]-length_extension]
+        point_straight_3 = [point_straight_2[0]+D7, point_straight_2[1]]
+        point_straight_4 = [point_straight_3[0], point_straight_1[1]+length_extension]
+        point_straight_5 = point_straight_1
 
+        points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
+
+        file.write("G36*\n")
+
+        for x in points_straight:
+                draw(x, "D01")
+        file.write("G37*\n")
+        """
 
         point_straight_1 = endpoints[0]
         point_straight_2 = [point_straight_1[0]-((D7-D10)/2), point_straight_1[1] - D9]
@@ -612,12 +630,12 @@ G75*
         point_straight_9 = point_straight_1
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5,point_straight_6, point_straight_7, point_straight_8, point_straight_9]
         print(points_straight)
+        
         file.write("G36*\n")
 
         for x in points_straight:
                 draw(x, "D01")
         file.write("G37*\n")
-        
 
        
         
