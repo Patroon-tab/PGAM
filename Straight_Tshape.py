@@ -8,28 +8,32 @@ basename = "layer"
 
 prefactor = 1
 ######################
-D1 = 12.7 * 1000
-D2 = 25.4 * 1000
-D3 = 9.53 * 1000 #SMA 9.53 SMP 5.84
-D4 = 2.79 * 1000
-D5 = 1.27 * 1000
-D6 = 0.25 * 1000
-D7 =  0.2794 * 1000
-D8  = 1.0 * 1000
-D9  = 2 * 1000
-D10 = 0.0762 * 1000
-D11 = 0.6 * 1000
-D12 = 1.2 #doublecheck
-D13 = 0.6
-D14 = 0.15
-D16 = 5.0 * 1000
-D17 = 2.06
-D18 = 0.4064 * 1000   #length cutout
-D19 =  0.6096 * 1000 #width cutout
-D26 = 0.5 *1000#length head x
-D27 = 0.2 * 1000 #width head y
-D28 = 0.1 * 1000 #gap size
-D29 = 10.0 * 1000 #Head to head size
+D1 = 12.7 * 1000 #Checked
+D2 = 25.4 * 1000 #Checked
+D3 = 9.53 * 1000 
+D4 = 2.79 * 1000 #Checked
+D5 = 1.27 * 1000 #SSMA = 1.27mm #1.85 = 0.762mm #awaiting confirmation #Checked
+D6 = 0.25 * 1000  #SSMA = 0.25 #1.86 = 0.25 #Checked
+D7 =  0.2794 * 1000 #Checked
+D8  = 0.61 * 1000 #Checked
+D9  = 2.0 * 1000 #Checked
+D10 = 0.0762 * 1000 #Checked
+D11 = 0.3302 * 1000 #Checked
+D12 = 1.0 * 1000 #Checked
+D13 = 0.6 * 1000 #Checked
+D14 = 0.15 #Checked
+D16 = 5.0 * 1000 #None,2,5
+D17 = 2.06 #SSMA = 1.98 #1.85 = 2.06 #Checked
+D18 = 0.4064 * 1000 #y dim GND cutout #1.85 = no antipad #SSMA = 0.4064 #Checked
+D19 =  0.508 * 1000   #x dim GND Cutout #1.85 = no antipad #SSMA = 0.508 #Checked
+
+D26 = 0.4064 *1000#length head x #Checked
+D27 = 0.1016 * 1000 #width head y #Checked
+D28 = 0.0762 * 1000 #gap size #Checked
+
+D29 = D16+(2*D9) #Head to head size #Checked
+D31 = 0.1778 * 1000 #D7 but inside #Checked
+
 global left_side_plane
 left_side_plane = []
 
@@ -197,13 +201,13 @@ def featurelayer(laynam): #Layer with Traces e.g Top and Bottom Layer
 
         point_straight_1 = [point_straight_7[0], point_straight_7[1] + D28]
         point_straight_2 = [point_straight_1[0], point_straight_1[1] + D27]
-        point_straight_3 = [point_straight_2[0]-((D26-D7)/2), point_straight_2[1]]
+        point_straight_3 = [point_straight_2[0]-((D26-D31)/2), point_straight_2[1]]
         point_straight_4 = [point_straight_3[0], point_straight_3[1]+((D29-D16)/2)]
-        point_straight_5 = [point_straight_4[0]-((D7-D10)/2), point_straight_4[1]]
+        point_straight_5 = [point_straight_4[0]-((D31-D10)/2), point_straight_4[1]]
         point_straight_6 = [point_straight_5[0], D2/2]
         point_straight_7 = [point_straight_6[0]-D10, point_straight_6[1]]
         point_straight_88 = [point_straight_5[0]-D10, point_straight_5[1]]
-        point_straight_8 = [point_straight_4[0]-D7, point_straight_4[1]]
+        point_straight_8 = [point_straight_4[0]-D31, point_straight_4[1]]
         point_straight_9 = [point_straight_8[0], point_straight_3[1]]
         point_straight_10 = [point_straight_2[0]-D26, point_straight_2[1]]
         point_straight_11 = [point_straight_10[0],point_straight_1[1]]
@@ -232,7 +236,7 @@ def featurelayer(laynam): #Layer with Traces e.g Top and Bottom Layer
 
         point_plane_1 = [(D1/2)-(D8/2), 0]
         point_plane_2 = [point_plane_1[0], (D2-D29)/2]
-        point_plane_3 = [(D1/2)-((D11-D10)/2), (D2/2)-(D16/2)]
+        point_plane_3 = [(D1/2)-((D11)/2), (D2/2)-(D16/2)]
         point_plane_4 = [point_plane_3[0], point_plane_3[1]+D16]
         point_plane_5 = [point_plane_2[0], point_plane_2[1]+D29]
         point_plane_6 = [point_plane_1[0], D2]
