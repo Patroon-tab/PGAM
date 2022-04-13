@@ -1,5 +1,6 @@
 from ast import Global
 from decimal import ROUND_DOWN
+from email.mime import base
 import math
 import tkinter as tk
 from turtle import left
@@ -14,9 +15,9 @@ prefactor = 1
 ######################
 D1 = 12.7 * 1000 #Checked
 D2 = 25.4 * 1000 #Checked
-D3 = 9.53 * 1000 
+D3 = 9.53 * 1000 #SSMA = 9.53 #1.85 =  5.84 #Checked
 D4 = 2.79 * 1000 #Checked
-D5 = 1.27 * 1000 #SSMA = 1.27mm #1.85 = 0.762mm #awaiting confirmation #Checked
+D5 = 1.27 * 1000 #SSMA = 1.27mm #1.85 = 0.762mm  #Checked
 D6 = 0.25 * 1000  #SSMA = 0.25 #1.86 = 0.25 #Checked
 D7 =  0.2794 * 1000 #Checked
 D8  = 0.61 * 1000 #Checked
@@ -80,6 +81,8 @@ namef = tk.Entry(window)
 namef.grid(row=(24), column=1)
 namef.insert(-1, "layername")
 
+
+
 def overwrite():
         global D1
         global D2
@@ -129,6 +132,9 @@ def overwrite():
 
 butt = tk.Button(text ="Generate", command = overwrite)
 butt.grid(row = 25, column = 0)
+
+mirror_bool = tk.IntVar()
+tk.Checkbutton(window, text="mirror?", variable=mirror_bool).grid(row=26)
 
 canvas = tk.Canvas(window, width = 1500, height = 3000) 
 canvas.grid(column = 3, row = 0, columnspan=300, rowspan=300)
@@ -437,13 +443,13 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
                 x_cors.append(x[0])
                 y_cors.append(x[1])
 
-
+        """
         print("asöodkasüpdkaüskdüaskd")
         print(points_arc)
         plt.plot(x_cors, y_cors)
         plt.scatter(startingpoints[0],startingpoints[1], color = "green")
         plt.scatter(points_arc[1][0],points_arc[1][1], color = "red")
-        
+        """
         return points_arc, endpoints
 
 def featurelayer(laynam):
@@ -455,27 +461,7 @@ def featurelayer(laynam):
         file = open(basename+laynam, "w+")
         file.truncate(0)
 
-        init =  """G04*
-G04*
-G04 Layer_Physical_Order=1*
-G04 Layer_Color=255*
-%FSLAX25Y25*%
-%MOIN*%
-%SFA3.937B3.937*%
-G70*
-G04*
-G04*
-G04*
-G04 #@! TF.FilePolarity,Positive*
-G04*
-G01*
-G75*
-%ADD12C,0.00050*%
-%ADD13C,0.08268*%
-%ADD14C,0.00787*%
-%ADD15C,0.00800*%
-%ADD17C,0.00100*%
-"""
+        
         
         file.write(init)
 
@@ -749,15 +735,17 @@ G75*
 
         file.write(end)
         file.close()
-
+        
   
                
 
         
         plt.show()
 
-        
-featurelayer(".gtl")
+
+
+
+
 
 def toinchtz(mm):
         mils = (mm/25.4) *1000
@@ -928,8 +916,17 @@ G75*
 
 """
 
-groundplane(basename + ".gbl")
+####Mirror_Check#####
+if mirror_bool.get():
+        featurelayer(".gbl")
+        left_side_plane = []
+        right_side_plane = []
+else:
+        groundplane(basename + ".gbl")
+        
+featurelayer(".gtl")
 
+        
 init =  """G04*
 G04*
 G04 Layer_Physical_Order=2*

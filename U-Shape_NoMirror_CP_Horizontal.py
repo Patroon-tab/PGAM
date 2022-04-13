@@ -16,7 +16,7 @@ D1 = 25.4 * 1000 #Checked
 D2 = 12.7 * 1000 #Checked
 D3 = 5.84 * 1000 #SSMA = 9.53 #1.85 =  5.84
 D4 = 2.79 * 1000 #Checked
-D5 = 0.762 * 1000 #SSMA = 1.27mm #1.85 = 0.762mm #awaiting confirmation #Checked
+D5 = 0.762 * 1000 #SSMA = 1.27mm #1.85 = 0.762mm #Checked
 D6 = 0.25 * 1000 #SSMA = 0.25 #1.86 = 0.25 #Checked
 D7 =  0.2794 * 1000 #Checked
 D8  = 0.61 * 1000 #Checked
@@ -26,7 +26,7 @@ D11 = 0.3302 * 1000 #Checked
 D12 = 1.0 * 1000 #Checked
 D13 = 0.45 * 1000 #Checked
 D14 = 0.15 #Checked
-D16 = 10.0 * 1000 #10mm
+D16 = 10.0 * 1000 #10mm #Checked
 D17 = 2.06 #SSMA = 1.98 #1.85 = 2.06 #Checked
 D18 = 0.0 * 1000   #y dim GND cutout #1.85 = no antipad #SSMA = 0.4064 #Checked
 D19 =  0.0 * 1000 #x dim GND Cutout #1.85 = no antipad #SSMA = 0.508 #Checked

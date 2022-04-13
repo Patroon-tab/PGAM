@@ -8,25 +8,24 @@ basename = "layer"
 
 prefactor = 1
 ######################
-D1 = 12.7 * 1000
-D2 = 25.4 * 1000
-D3 = 9.53 * 1000 #SMA 9.53 SMP 5.84
-D4 = 2.79 * 1000
-D5 = 1.27 * 1000
-D6 = 0.25 * 1000
-D7 =  0.2794 * 1000
-D8  = 0.61 * 1000
-D9  = 2 * 1000
-D10 = 0.0762 * 1000
-D11 = 0.3302 * 1000
-D12 = 1.2 #doublecheck
-D13 = 0.6
-D14 = 0.15
-D16 = 10 * 1000
-D17 = 2.06
-D18 = 0.4064 * 1000   #length cutout
-D19 =  0.6096 * 1000 #width cutout
-
+D1 = 12.7 * 1000 #Checked
+D2 = 25.4 * 1000 #Checked
+D3 = 9.53 * 1000 #SSMA = 9.53 #1.85 =  5.84
+D4 = 2.79 * 1000 #Checked
+D5 = 1.27 * 1000 #SSMA = 1.27mm #1.85 = 0.762mm  #Checked
+D6 = 0.25 * 1000 #SSMA = 0.25 #1.86 = 0.25 #Checked
+D7 =  0.2794 * 1000 #Checked
+D8  = 0.61 * 1000 #Checked
+D9  = 0.3 * 1000 #Checked 
+D10 = 0.0762 * 1000 #Chekced
+D11 = 0.3302 * 1000 #Checked
+D12 = 1.0 #Checked
+D13 = 0.6 #Checked
+D14 = 0.15 #Checked
+D16 = 10 * 1000 #None, 2,5,10mm #Checked
+D17 = 2.06 #SSMA = 1.98 #1.85 = 2.06 #Checked
+D18 = 0.4064 * 1000 #y dim GND cutout #1.85 = no antipad #SSMA = 0.4064 #Checked
+D19 =  0.508 * 1000   #x dim GND Cutout #1.85 = no antipad #SSMA = 0.508 #Checked
 
 
 window = tk.Tk()
@@ -476,7 +475,7 @@ G75*
 %ADD14C,0.00787*%
 
 """
-groundplane(basename + ".gbl")
+(basename + ".gbl")
 init =  """G04*
 G04*
 G04 Layer_Physical_Order=2*

@@ -12,11 +12,11 @@ D1 = 12.7 * 1000 #Checked
 D2 = 25.4 * 1000 #Checked
 D3 = 9.53 * 1000 #SSMA = 9.53 #1.85 =  5.84
 D4 = 2.79 * 1000 #Checked
-D5 = 1.27 * 1000 #SSMA = 1.27mm #1.85 = 0.762mm #awaiting confirmation #Checked
+D5 = 1.27 * 1000 #SSMA = 1.27mm #1.85 = 0.762mm  #Checked
 D6 = 0.25 * 1000 #SSMA = 0.25 #1.86 = 0.25 #Checked
 D7 =  0.2794 * 1000 #Checked
 D8  = 0.61 * 1000 #Checked
-D9  = 0.3 * 1000 #Checked Global
+D9  = 0.3 * 1000 #Checked 
 D10 = 0.0762 * 1000 #Chekced
 D11 = 0.3302 * 1000 #Checked
 D12 = 1.0 #Checked

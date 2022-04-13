@@ -9,12 +9,12 @@ import time
 import numpy as np
 from matplotlib import pyplot as plt
 basename = "layer"
-
+#Todo
 prefactor = 1
 ######################
 D1 = 25.4 * 1000 #Checked
 D2 = 12.7 * 1000 #Checked
-D3 = 5.84 * 1000 #SSMA = 9.53 #1.85 =  5.84
+D3 = 5.84 * 1000 #SSMA = 9.53 #1.85 =  5.84 #Checked
 D4 = 2.79 * 1000 #Checked
 D5 = 0.762 * 1000 #SSMA = 1.27mm #1.85 = 0.762mm #awaiting confirmation #Checked
 D6 = 0.25 * 1000 #SSMA = 0.25 #1.86 = 0.25 #Checked
@@ -33,7 +33,7 @@ D19 =  0.0 * 1000 #x dim GND Cutout #1.85 = no antipad #SSMA = 0.508 #Checked
 D22 =  2.5 * 1000 #Checked
 D24 = 9.0 * 1000 #Height of U-Shape short side #9.0mm #Checked
 D26 = 15.6 * 1000 #Length outer radiud outer radius #Checked
-D40 = 4.142 #Connector Height
+D40 = 4.142 #Connector Height #Checked
 segments_circle = 80
 straight_segment_1 = (D26/2) - (2*D22) 
 straight_segment_2 = (D2/2) - (3*D22) - D24
