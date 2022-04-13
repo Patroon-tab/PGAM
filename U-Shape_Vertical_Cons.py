@@ -33,7 +33,7 @@ D19 =  0.0 * 1000 #x dim GND Cutout #1.85 = no antipad #SSMA = 0.508 #Checked
 D22 =  2.5 * 1000 #Checked
 D24 = 9.0 * 1000 #Height of U-Shape short side #9.0mm #Checked
 D26 = 15.6 * 1000 #Length outer radiud outer radius #Checked
-D40 = 4.142 #Connector Height #Checked
+D40 = 4.142 * 1000 #Connector Height #Checked
 segments_circle = 80
 straight_segment_1 = (D26/2) - (2*D22) 
 straight_segment_2 = (D2/2) - (3*D22) - D24
@@ -602,15 +602,17 @@ G75*
     
 
         file.write("G37*\n")
-        """
-        #addd extracut
-        length_extension = D24-4.142-(D9)-D16
 
+ 
+        #addd extracut
+        length_extension = D24-D40-D9-D16
+        left_side_plane.append([endpoints[0][0]+((D8-D7)/2),endpoints[0][1]-length_extension])
+        right_side_plane.append([endpoints[1][0]-((D8-D7)/2),endpoints[1][1]-length_extension])
         points_straight = []
-        point_straight_1 = endpoints[0]
+        point_straight_1 = endpoints[1]
         point_straight_2 = [point_straight_1[0], point_straight_1[1]-length_extension]
         point_straight_3 = [point_straight_2[0]+D7, point_straight_2[1]]
-        point_straight_4 = [point_straight_3[0], point_straight_1[1]+length_extension]
+        point_straight_4 = [point_straight_3[0], point_straight_3[1]+length_extension]
         point_straight_5 = point_straight_1
 
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5]
@@ -620,22 +622,23 @@ G75*
         for x in points_straight:
                 draw(x, "D01")
         file.write("G37*\n")
-        """
+        #########
+        endpoints = [point_straight_2,point_straight_3]
 
-        point_straight_1 = endpoints[0]
+        point_straight_1 = endpoints[1]
         point_straight_2 = [point_straight_1[0]-((D7-D10)/2), point_straight_1[1] - D9]
         point_straight_3 = [point_straight_2[0], point_straight_2[1]- D16]
         point_straight_4 = [point_straight_3[0]+((D7-D10)/2), point_straight_3[1] - D9]
         point_straight_5 = [point_straight_4[0]-D7, point_straight_4[1]]
         point_straight_6 = [point_straight_5[0] + ((D7-D10)/2), point_straight_5[1] + D9]
         point_straight_7 = [point_straight_6[0], point_straight_6[1] + D16]
-        point_straight_8 = endpoints[1]
+        point_straight_8 = endpoints[0]
         point_straight_9 = point_straight_1
         points_straight = [point_straight_1,point_straight_2,point_straight_3,point_straight_4,point_straight_5,point_straight_6, point_straight_7, point_straight_8, point_straight_9]
         print(points_straight)
         
         file.write("G36*\n")
-
+        draw(points_straight[0], "D02")
         for x in points_straight:
                 draw(x, "D01")
         file.write("G37*\n")
@@ -643,7 +646,7 @@ G75*
        
         
         
-        overall_straight_right = D24-(2*D9)-D16
+        overall_straight_right = D24-(2*D9)-D16-length_extension
         point_straight_1 = point_straight_4
         point_straight_2 = point_straight_5
         point_straight_3 = [point_straight_2[0], point_straight_2[1]-overall_straight_right+D5]
@@ -654,9 +657,10 @@ G75*
         point_straight_8 = [point_straight_7[0]+((D7-D6)/2), point_straight_7[1]]
         point_straight_9 = point_straight_1
 
-        left_side_plane.append([(D26/2)+(D1/2)+(D11/2), D24-D9])
-        left_side_plane.append([(D26/2)+(D1/2)+(D11/2), D24-D9-D16])
-        left_side_plane.append([(D26/2)+(D1/2)+(D8/2), D24-D9-D16-D9])
+        
+        left_side_plane.append([(D26/2)+(D1/2)+(D11/2), D24-D9-length_extension])
+        left_side_plane.append([(D26/2)+(D1/2)+(D11/2), D24-D9-D16-length_extension])
+        left_side_plane.append([(D26/2)+(D1/2)+(D8/2), D24-D9-D16-D9-length_extension])
         left_side_plane.append([(D26/2)+(D1/2)+(D8/2), 0])
         left_side_plane.append([D1,0])
         left_side_plane.append([D1, D2])
@@ -665,9 +669,9 @@ G75*
         left_side_plane.append([((D1-D26)/2)-(D8/2),0])
 
 
-        right_side_plane.append([(D26/2)+(D1/2)-(D11/2), D24-D9])
-        right_side_plane.append([(D26/2)+(D1/2)-(D11/2), D24-D9-D16])
-        right_side_plane.append([(D26/2)+(D1/2)-(D8/2), D24-D9-D16-D9])
+        right_side_plane.append([(D26/2)+(D1/2)-(D11/2), D24-D9-length_extension])
+        right_side_plane.append([(D26/2)+(D1/2)-(D11/2), D24-D9-D16-length_extension])
+        right_side_plane.append([(D26/2)+(D1/2)-(D8/2), D24-D9-D16-D9-length_extension])
         right_side_plane.append([(D26/2)+(D1/2)-(D8/2), 0])
         right_side_plane.append([((D1-D26)/2)+(D8/2),0])
         
@@ -692,15 +696,13 @@ G75*
 
         file.write("G36*\n")
         for x in right_side_plane:
-                plt.scatter(x[0],x[1], s = 8.0)
-                plt.annotate(str(t),(x[0],x[1]))
-                t = t + 1
+                
                 draw(x, "D01")
         file.write("G37*\n")
 
         file.write(end)
         file.close() 
-        plt.show()
+   
         
 
      

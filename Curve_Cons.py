@@ -535,7 +535,16 @@ def featurelayer(laynam):
 
         file.write("G37*\n")
 
+     
 
+
+
+        file.write("G36*\n")
+
+        for x in points_straight:
+                draw(x, "D01")
+        file.write("G37*\n")
+        
 
         point_straight_1 = endpoints[1]
         point_straight_2 = [point_straight_1[0], point_straight_1[1]+straight_segment_2]
@@ -913,7 +922,6 @@ G01*
 G75*
 %ADD13C,0.08268*%
 %ADD14C,0.00787*%
-
 """
 
 ####Mirror_Check#####
