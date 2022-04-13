@@ -130,6 +130,9 @@ def overwrite():
 butt = tk.Button(text ="Generate", command = overwrite)
 butt.grid(row = 25, column = 0)
 
+mirror_bool = tk.IntVar()
+tk.Checkbutton(window, text="mirror?", variable=mirror_bool).grid(row=24)
+
 canvas = tk.Canvas(window, width = 1500, height = 3000) 
 canvas.grid(column = 3, row = 0, columnspan=300, rowspan=300)
 img = tk.PhotoImage(file="ref_curvey.png")     
@@ -688,7 +691,7 @@ G75*
 
      
         
-featurelayer(".gtl")
+
 
 def toinchtz(mm):
         mils = (mm/25.4) *1000
@@ -859,7 +862,15 @@ G75*
 
 """
 
-groundplane(basename + ".gbl")
+if mirror_bool.get():
+        featurelayer(".gbl")
+        left_side_plane = []
+        right_side_plane = []
+else:
+        groundplane(basename + ".gbl")
+        
+featurelayer(".gtl")
+
 
 init =  """G04*
 G04*

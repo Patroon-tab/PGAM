@@ -132,6 +132,9 @@ def overwrite():
 butt = tk.Button(text ="Generate", command = overwrite)
 butt.grid(row = 25, column = 0)
 
+mirror_bool = tk.IntVar()
+tk.Checkbutton(window, text="mirror?", variable=mirror_bool).grid(row=26)
+
 canvas = tk.Canvas(window, width = 1500, height = 3000) 
 canvas.grid(column = 3, row = 0, columnspan=300, rowspan=300)
 img = tk.PhotoImage(file="ref_curvey.png")     
@@ -496,11 +499,7 @@ def drawarc(startingpoints, radius, thickness, resolution, clock, drive):
                 y_cors.append(x[1])
 
 
-        print("asöodkasüpdkaüskdüaskd")
-        print(points_arc)
-        plt.plot(x_cors, y_cors)
-        plt.scatter(startingpoints[0],startingpoints[1], color = "green")
-        plt.scatter(points_arc[1][0],points_arc[1][1], color = "red")
+
         
         return points_arc, endpoints
 
@@ -779,7 +778,7 @@ G75*
 
       
         
-        plt.show()
+ 
         left_side_plane.append([(D1/2)-(D8/2), D2])
         left_side_plane.append([0,D2])
         left_side_plane.append([0,0])
@@ -808,25 +807,15 @@ G75*
         file.write(end)
         file.close()
 
-        for x in right_side_plane:
-                
-                plt.scatter(x[0],x[1], s = 8.0)
-                plt.annotate(str(t),(x[0],x[1]))
-                t = t + 1
-
-        for x in left_side_plane:
         
-                plt.scatter(x[0],x[1], s = 8.0)
-                plt.annotate(str(t),(x[0],x[1]))
-                t = t + 1
                 
                
 
         
-        plt.show()
+   
 
         
-featurelayer(".gtl")
+
 
 def toinchtz(mm):
         mils = (mm/25.4) *1000
@@ -1000,7 +989,14 @@ G75*
 
 """
 
-groundplane(basename + ".gbl")
+if mirror_bool.get():
+        featurelayer(".gbl")
+        left_side_plane = []
+        right_side_plane = []
+else:
+        groundplane(basename + ".gbl")
+        
+featurelayer(".gtl")
 
 init =  """G04*
 G04*
