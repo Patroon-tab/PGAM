@@ -4,6 +4,7 @@ import tkinter as tk
 import weakref
 from zipfile import ZipFile
 import time
+import numpy as np
 basename = "layer"
 
 prefactor = 1
@@ -19,8 +20,8 @@ D8  = 0.61 * 1000 #Checked
 D9  = 0.3 * 1000 #Checked 
 D10 = 0.0762 * 1000 #Chekced
 D11 = 0.3302 * 1000 #Checked
-D12 = 1.0 #Checked
-D13 = 0.6 #Checked
+D12 = 1.0 * 1000 #Checked
+D13 = 0.6 * 1000 #Checked
 D14 = 0.15 #Checked
 D16 = 5.0 * 1000 #None, 2,5,10mm #Checked
 D17 = 2.06 #SSMA = 1.98 #1.85 = 2.06 #Checked
@@ -62,8 +63,8 @@ def overwrite():
         D9  = float(E9.get()) * 1000 * prefactor
         D10 = float(E10.get()) * 1000 * prefactor
         D11 = float(E11.get()) * 1000 * prefactor
-        D12 = float(E12.get()) * prefactor
-        D13 = float(E13.get()) * prefactor
+        D12 = float(E12.get()) * 1000 * prefactor
+        D13 = float(E13.get()) * 1000 * prefactor
         D14 = float(E14.get()) * prefactor
         D16 = float(E16.get()) * 1000 * prefactor
         D17 = float(E17.get()) * prefactor
@@ -96,8 +97,8 @@ E8 = inputd(8, D8/1000)
 E9 = inputd(9, D9/1000)
 E10 = inputd(10, D10/1000)
 E11 = inputd(11, D11/1000)
-E12 = inputd(12, D12)
-E13 = inputd(13, D13)
+E12 = inputd(12, D12/1000)
+E13 = inputd(13, D13/1000)
 E14 = inputd(14, D14)
 E16 = inputd(16, D16/1000)
 E17 = inputd(17, D17)
@@ -114,6 +115,8 @@ butt.grid(row = 20, column = 0)
 
 mirror_bool = tk.IntVar()
 tk.Checkbutton(window, text="mirror?", variable=mirror_bool).grid(row=24)
+double_via_bool = tk.IntVar(value=1)
+tk.Checkbutton(window, text="double via row?", variable=double_via_bool).grid(row=25)
 
 canvas = tk.Canvas(window, width = 1500, height = 3000) 
 canvas.grid(column = 3, row = 0, columnspan=300, rowspan=300)
@@ -121,9 +124,154 @@ img = tk.PhotoImage(file="ref.png")
 canvas.create_image(20,20, anchor=tk.NW, image=img)   
 
 window.mainloop()
-#### Tkinter Guy END ####
 
+#trace parsing 
+Seg_types = np.array([0]) #0 is straight, 1 is right turn, -1 is left turn
+Seg_dims  = np.array([D2/1000]) #Straight length, Turn radius
+Seg_lengths = Seg_dims+(np.pi/2-1)*np.absolute(Seg_types)*Seg_dims #
 
+Trace_cumlength = np.cumsum(Seg_lengths)
+Trace_numvias = 2*(math.floor((Trace_cumlength[-1])/(D13/1000)-0.5))-1
+Tracer_disfirstvia = ((Trace_cumlength[-1])-(((Trace_numvias+1)/2-1)*(D13/1000)))/2
+print(Tracer_disfirstvia)
+Trace_viapos = np.array(range(Trace_numvias))*(D13/2000) + Tracer_disfirstvia #even indices are closest row, odd indices are farther row
+
+def allow_ground_via(x,y,Seg_types,Seg_dims,Seg_lengths,Tracer_x_passed,Tracer_y_passed,Tracer_dir_passed,Exclusion_width):
+    allow_via = True
+    Tracer_x = Tracer_x_passed
+    Tracer_y = Tracer_y_passed
+    Tracer_dir = Tracer_dir_passed
+    for seg_idx,seg_type in enumerate(Seg_types):
+        if Seg_types[seg_idx]==0:
+            x1=Tracer_x-Exclusion_width/2*np.sin(Tracer_dir)
+            x2=Tracer_x+Exclusion_width/2*np.sin(Tracer_dir)+Seg_dims[seg_idx]*np.cos(Tracer_dir)
+            y1=Tracer_y-Exclusion_width/2*np.cos(Tracer_dir)
+            y2=Tracer_y+Exclusion_width/2*np.cos(Tracer_dir)+Seg_dims[seg_idx]*np.sin(Tracer_dir)
+            if ((x-x1)*(x-x2)<0) and ((y-y1)*(y-y2)<0):
+                allow_via = False
+        elif Seg_types[seg_idx]==1:
+            arc_center_x=Tracer_x+np.cos(Tracer_dir-np.pi/2)*Seg_dims[seg_idx]
+            arc_center_y=Tracer_y+np.sin(Tracer_dir-np.pi/2)*Seg_dims[seg_idx]
+            seg1=np.array([Tracer_x-arc_center_x,Tracer_y-arc_center_y])
+            end_x=Tracer_x+np.cos(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            end_y=Tracer_y+np.sin(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            seg2=np.array([end_x-arc_center_x,end_y-arc_center_y])
+            seg=np.array([x-arc_center_x,y-arc_center_y])
+            if (np.dot(seg,seg1)>=0) and (np.dot(seg,seg2)>=0): #outisde this quarter plane there is no exclusion
+                rad_dist = np.sqrt(seg[0]**2+seg[1]**2)
+                if abs(rad_dist-Seg_dims[seg_idx])<Exclusion_width/2:
+                       allow_via = False
+        else:
+            arc_center_x=Tracer_x+np.cos(Tracer_dir+np.pi/2)*Seg_dims[seg_idx]
+            arc_center_y=Tracer_y+np.sin(Tracer_dir+np.pi/2)*Seg_dims[seg_idx]
+            seg1=np.array([Tracer_x-arc_center_x,Tracer_y-arc_center_y])
+            end_x=Tracer_x+np.cos(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            end_y=Tracer_y+np.sin(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            seg2=np.array([end_x-arc_center_x,end_y-arc_center_y])
+            seg=np.array([x-arc_center_x,y-arc_center_y])
+            if (np.dot(seg,seg1)>=0) and (np.dot(seg,seg2)>=0): #outisde this quarter plane there is no exclusion
+                rad_dist = np.sqrt(seg[0]**2+seg[1]**2)
+                if abs(rad_dist-Seg_dims[seg_idx])<Exclusion_width/2:
+                       allow_via = False
+        #find parameters for next segment
+        if Seg_types[seg_idx]==0:
+            Tracer_x=Tracer_x+np.cos(Tracer_dir)*Seg_dims[seg_idx]
+            Tracer_y=Tracer_y+np.sin(Tracer_dir)*Seg_dims[seg_idx]
+        elif Seg_types[seg_idx]==1:
+            Tracer_x=Tracer_x+np.cos(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            Tracer_y=Tracer_y+np.sin(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            Tracer_dir=Tracer_dir-np.pi/2
+        else:
+            Tracer_x=Tracer_x+np.cos(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            Tracer_y=Tracer_y+np.sin(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            Tracer_dir=Tracer_dir+np.pi/2
+    return allow_via
+
+def allow_holes_via(x,y,Exclusion_dist):
+        #valid for D17 in inches, once conversion has happened
+        allow_via = True
+        h1 = [(D1-D3)/2, D4]
+        h1 = [h1[0]/1000, h1[1]/1000]
+        h2 = [h1[0]+(D3/1000), h1[1]]
+        h3 = [h1[0], h1[1]+((D2-D4-D4)/1000)]
+        h4 = [h2[0], h3[1]]
+        for h in [h1,h2,h3,h4]:
+            if np.sqrt((x-h[0])**2+(y-h[1])**2)<D17/2*25.4+Exclusion_dist:
+                allow_via = False
+        return allow_via
+
+def allow_opens_via(x,y,Exclusion_dist):
+        allow_via = True
+        length_cut = (D16/1000 + (2*D30/1000) - (2*D31/1000) + 2*Exclusion_dist)
+        point_cut_1 = [(D1/2000)-(length_cut/2), (D2/2000)-(D16/2000)-Exclusion_dist]
+        point_cut_2 = [point_cut_1[0], point_cut_1[1]+D16/1000+2*Exclusion_dist]
+        point_cut_3 = [point_cut_2[0]+D30/1000+2*Exclusion_dist, point_cut_2[1]]
+        if ((x-point_cut_1[0])*(x-point_cut_3[0])<0) and ((y-point_cut_1[1])*(y-point_cut_3[1])<0):
+            allow_via = False
+        point_cut_1=[D1/1000-point_cut_1[0],point_cut_1[1]]
+        point_cut_3=[D1/1000-point_cut_3[0],point_cut_3[1]]
+        if ((x-point_cut_1[0])*(x-point_cut_3[0])<0) and ((y-point_cut_1[1])*(y-point_cut_3[1])<0):
+            allow_via = False
+        return allow_via
+
+Seg_endnumvia=np.zeros_like(Seg_types)
+Via_coords=[]
+Tracer_x=D1/2000 #This is a trace start parameter
+Tracer_y=0 #This is a trace start parameter
+Tracer_dir=np.pi/2 #This is a trace start parameter
+Via_last_type=1 #This is a via start parameter
+
+for seg_idx,seg_type in enumerate(Seg_types):
+    Seg_endnumvia[seg_idx] = np.searchsorted(Trace_viapos,Trace_cumlength[seg_idx])
+print(Seg_endnumvia)
+Seg_endnumvia[1:] = Seg_endnumvia[1:]-Seg_endnumvia[:-1]
+print(Seg_endnumvia)
+
+for seg_idx,seg_type in enumerate(Seg_types):
+    #generate positions for this segment
+    for via_idx in range(Seg_endnumvia[seg_idx]):
+        via_type= (Via_last_type+1+via_idx) % 2
+        if Seg_types[seg_idx]==0:
+            x=Tracer_x+(Tracer_disfirstvia+via_idx*(D13/2000))*np.cos(Tracer_dir)
+            y=Tracer_y+(Tracer_disfirstvia+via_idx*(D13/2000))*np.sin(Tracer_dir)
+            ang=Tracer_dir+np.pi/2
+            Via_coords = Via_coords+[[x,y,ang,via_type]]
+        elif Seg_types[seg_idx]==1:
+            arc_center_x=Tracer_x+np.cos(Tracer_dir-np.pi/2)*Seg_dims[seg_idx]
+            arc_center_y=Tracer_y+np.sin(Tracer_dir-np.pi/2)*Seg_dims[seg_idx]
+            arc_startangle=Tracer_dir+np.pi/2
+            ang=arc_startangle-(Tracer_disfirstvia+via_idx*(D13/2000))/Seg_lengths[seg_idx]*np.pi/2
+            x=arc_center_x+Seg_dims[seg_idx]*np.cos(ang)
+            y=arc_center_y+Seg_dims[seg_idx]*np.sin(ang)
+            Via_coords = Via_coords+[[x,y,ang,via_type]]
+        else:
+            arc_center_x=Tracer_x+np.cos(Tracer_dir+np.pi/2)*Seg_dims[seg_idx]
+            arc_center_y=Tracer_y+np.sin(Tracer_dir+np.pi/2)*Seg_dims[seg_idx]
+            arc_startangle=Tracer_dir-np.pi/2
+            ang=arc_startangle+(Tracer_disfirstvia+via_idx*(D13/2000))/Seg_lengths[seg_idx]*np.pi/2
+            x=arc_center_x+Seg_dims[seg_idx]*np.cos(ang)
+            y=arc_center_y+Seg_dims[seg_idx]*np.sin(ang)
+            Via_coords = Via_coords+[[x,y,ang,via_type]]
+    #find parameters for next segment
+    if Seg_types[seg_idx]==0:
+        Tracer_x=Tracer_x+np.cos(Tracer_dir)*Seg_dims[seg_idx]
+        Tracer_y=Tracer_y+np.sin(Tracer_dir)*Seg_dims[seg_idx]
+    elif Seg_types[seg_idx]==1:
+        Tracer_x=Tracer_x+np.cos(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+        Tracer_y=Tracer_y+np.sin(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+        Tracer_dir=Tracer_dir-np.pi/2
+    else:
+        Tracer_x=Tracer_x+np.cos(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+        Tracer_y=Tracer_y+np.sin(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+        Tracer_dir=Tracer_dir+np.pi/2
+    Tracer_disfirstvia=(D13/2000)-Seg_lengths[seg_idx]+(Tracer_disfirstvia+(Seg_endnumvia[seg_idx]-1)*(D13/2000))
+    Via_last_type=via_type
+
+#Reinitialise for later use in functions
+Tracer_x=D1/2000 #This is a trace start parameter
+Tracer_y=0 #This is a trace start parameter
+Tracer_dir=np.pi/2 #This is a trace start parameter
+Via_last_type=1 #This is a via start parameter
 
 end = "M02*"
 
@@ -289,10 +437,12 @@ def toinchtz(mm):
         return(mils)
         
 def toinchtz2(mm):
+        """
         zeros = 5
+        """
         mils = ((mm/25.4) *1000)/3.93701
-        mils = round(mils)
-        mils = str(mils)
+        cenmils = int(round(mils,1)*100)
+        cenmils = str(cenmils)
         """
         if len(mils) > zeros:
                 mils = mils[0:zeros]
@@ -304,71 +454,90 @@ def toinchtz2(mm):
         
                         mils = mils + "0"
         """
-        mils = mils + "00"
-        return(mils)
+        return(cenmils)
 
-D14 = (D14 / 25.4)#/3.947
-D17 = (D17 / 25.4)#/3.947
+def drillfiles():
+        global D14
+        global D17
+        D14 = (D14 / 25.4)#/3.947
+        D17 = (D17 / 25.4)#/3.947
 
-initdrill = """M48
-;Layer_Color=9474304
-;FILE_FORMAT=2:5
-INCH,TZ
-;TYPE=PLATED
-"""
+        initdrill = """M48
+        ;Layer_Color=9474304
+        ;FILE_FORMAT=2:5
+        INCH,TZ
+        ;TYPE=PLATED
+        """
 
-file = open(basename + ".txt", "w+")
-file.truncate(0)
 
-file.write(initdrill)
+        file = open(basename + ".txt", "w+")
+        file.truncate(0)
 
-viat1 = ("T1F00S00C%f"%(D14/3.93701))
-holet2 = ("T2F00S00C%f"%(D17/3.93701))
+        file.write(initdrill)
 
-file.write(viat1+"\n")
-file.write(holet2+"\n")
-file.write("%\n")
-file.write("T01\n")
+        viat1 = ("T1F00S00C%f"%(D14/3.93701))
+        holet2 = ("T2F00S00C%f"%(D17/3.93701))
 
-D12 = 1.5
-D13 = 0.6
+        file.write(viat1+"\n")
+        file.write(holet2+"\n")
+        file.write("%\n")
+        file.write("T01\n")
 
-xvial = (D1/2000) - (D12/2)
-xviar = (D1/2000) + (D12/2)
-print(xvial)
-print(xviar)
+        Exclusion_width =  D12/1000+(1+1*double_via_bool.get())*np.sqrt(3)*D13/1000
+        Exclusion_dist = np.sqrt(3)*D13/2000
+        
+        lattice_a = 2*D13/1000
+        V1=np.flip(np.arange(D2/2000-np.sqrt(3)*lattice_a/4,Exclusion_dist,-np.sqrt(3)*lattice_a/2))
+        V2=np.arange(D2/2000+np.sqrt(3)*lattice_a/4,D2/1000-Exclusion_dist,np.sqrt(3)*lattice_a/2)
+        V=np.concatenate((V1,V2))
+        for via_ind,via_y in enumerate(V):
+            H1=np.flip(np.arange(D1/2000+((via_ind % 2)/2-1)*lattice_a,Exclusion_dist,-lattice_a))
+            H2=np.arange(D1/2000+(via_ind % 2)/2*lattice_a,D1/1000-Exclusion_dist,lattice_a)
+            H=np.concatenate((H1,H2))
+            for via_x in H:
+                allow_via=allow_ground_via(via_x,via_y,Seg_types,Seg_dims,Seg_lengths,Tracer_x,Tracer_y,Tracer_dir,Exclusion_width)
+                allow_via=allow_via and allow_holes_via(via_x, via_y, Exclusion_dist)
+                allow_via=allow_via and allow_opens_via(via_x, via_y, Exclusion_dist)
+                if allow_via:
+                    file.write("""X%sY%s\n"""%(toinchtz2(via_x),toinchtz2(via_y)))
 
-numvias =  math.floor((D2/1000)/(D13+D14))
-disfirstvia = (D2/1000)-(numvias*D13)
+        if double_via_bool.get():
+            Via_selected=Via_coords
+        else:
+            Via_selected=Via_coords[::2]
+        for via_idx,via_coord in enumerate(Via_selected):
+                via_x=via_coord[0]-np.cos(via_coord[2])*(D12/2000+via_coord[3]*np.sqrt(3)/2*D13/1000)
+                via_y=via_coord[1]-np.sin(via_coord[2])*(D12/2000+via_coord[3]*np.sqrt(3)/2*D13/1000)
+                print("via L" + str(via_idx) + "-------------> " + str(via_x) + ", " + str(via_y))
+                #print("before--->" + str(via_x))
+                #print("after----> " + str(toinchtz2(via_x)))
+                file.write("""X%sY%s\n"""%(toinchtz2(via_x),toinchtz2(via_y)))
+                print("X%sY%s"%(toinchtz2(via_x),toinchtz2(via_y)))
+                via_x=via_coord[0]+np.cos(via_coord[2])*(D12/2000+via_coord[3]*np.sqrt(3)*D13/2000)
+                via_y=via_coord[1]+np.sin(via_coord[2])*(D12/2000+via_coord[3]*np.sqrt(3)*D13/2000)
+                print("via R" + str(via_idx) + "-------------> " + str(via_x) + ", " + str(via_y))
+                file.write("""X%sY%s\n"""%(toinchtz2(via_x),toinchtz2(via_y)))
+                print("X%sY%s"%(toinchtz2(via_x),toinchtz2(via_y)))
 
-for x in range(numvias):
-        print("------------->  " + str(disfirstvia))
-        file.write("""X%sY%s\n"""%(toinchtz2(xvial),toinchtz2(disfirstvia)))
-        print("X%sY%s"%(toinchtz2(xvial),toinchtz2(disfirstvia)))
-        disfirstvia = disfirstvia + D13
+        h1 = [(D1-D3)/2, D4]
+        h1 = [h1[0]/1000, h1[1]/1000]
+        h2 = [h1[0]+(D3/1000), h1[1]]
+        h3 = [h1[0], h1[1]+((D2-D4-D4)/1000)]
+        h4 = [h2[0], h3[1]]
+        #print(h1, h2, h3, h4)
 
-disfirstvia = (D2/1000)-(numvias*D13)
+        #coordinates
+        file.write("T02\n")
+        file.write("""X%sY%s\n"""%(toinchtz2(h1[0]),toinchtz2(h1[1])))
+        file.write("""X%sY%s\n"""%(toinchtz2(h2[0]),toinchtz2(h2[1])))
+        file.write("""X%sY%s\n"""%(toinchtz2(h3[0]),toinchtz2(h3[1])))
+        file.write("""X%sY%s\n"""%(toinchtz2(h4[0]),toinchtz2(h4[1])))
+        #print("Vias--> " + str(len(Via_coords)))
+        file.write("M30")
+        file.close()
 
-for x in range(numvias):
-        file.write("""X%sY%s\n"""%(toinchtz2(xviar),toinchtz2(disfirstvia)))
-        disfirstvia = disfirstvia + D13
+drillfiles()
 
-h1 = [(D1-D3)/2, D4]
-h1 = [h1[0]/1000, h1[1]/1000]
-h2 = [h1[0]+(D3/1000), h1[1]]
-h3 = [h1[0], h1[1]+((D2-D4-D4)/1000)]
-h4 = [h2[0], h3[1]]
-print(h1, h2, h3, h4)
-
-#coordinates
-file.write("T02\n")
-file.write("""X%sY%s\n"""%(toinchtz2(h1[0]),toinchtz2(h1[1])))
-file.write("""X%sY%s\n"""%(toinchtz2(h2[0]),toinchtz2(h2[1])))
-file.write("""X%sY%s\n"""%(toinchtz2(h3[0]),toinchtz2(h3[1])))
-file.write("""X%sY%s\n"""%(toinchtz2(h4[0]),toinchtz2(h4[1])))
-print("Vias--> " + str(numvias))
-file.write("M30")
-file.close()
 
 def groundplane(filename):
         file = open(filename, "w+")

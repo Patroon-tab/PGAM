@@ -45,7 +45,7 @@ right_side_plane = []
 
 
 window = tk.Tk()
-window.geometry("690x710")
+window.geometry("690x730")
 def inputd(number, default):
         default = str(default)
         label = "D" + str(number)
@@ -128,10 +128,12 @@ def overwrite():
         window.destroy()
 
 butt = tk.Button(text ="Generate", command = overwrite)
-butt.grid(row = 25, column = 0)
+butt.grid(row = 27, column = 0)
 
 mirror_bool = tk.IntVar()
-tk.Checkbutton(window, text="mirror?", variable=mirror_bool).grid(row=24)
+tk.Checkbutton(window, text="mirror?", variable=mirror_bool).grid(row=25)
+double_via_bool = tk.IntVar()
+tk.Checkbutton(window, text="double via row?", variable=double_via_bool).grid(row=26)
 
 canvas = tk.Canvas(window, width = 1500, height = 3000) 
 canvas.grid(column = 3, row = 0, columnspan=300, rowspan=300)
@@ -148,45 +150,112 @@ Seg_dims  = np.array([D24/1000, D22/1000, ((D26-(2*D22))/1000), D22/1000, D24/10
 Seg_lengths = Seg_dims+(np.pi/2-1)*np.absolute(Seg_types)*Seg_dims #
 
 Trace_cumlength = np.cumsum(Seg_lengths)
-Trace_numvias = math.floor((Trace_cumlength[-1])/(D13/1000))-1
-Tracer_disfirstvia = (Trace_cumlength[-1])-(Trace_numvias*(D13/1000))
+Trace_numvias = 2*(math.floor((Trace_cumlength[-1])/(D13/1000)-0.5))-1
+Tracer_disfirstvia = ((Trace_cumlength[-1])-(((Trace_numvias+1)/2-1)*(D13/1000)))/2
 print(Tracer_disfirstvia)
-Trace_viapos = np.array(range(Trace_numvias))*(D13/1000) + Tracer_disfirstvia
+Trace_viapos = np.array(range(Trace_numvias))*(D13/2000) + Tracer_disfirstvia #even indices are closest row, odd indices are farther row
+
+def allow_ground_via(x,y,Seg_types,Seg_dims,Seg_lengths,Tracer_x_passed,Tracer_y_passed,Tracer_dir_passed,Exclusion_width):
+    allow_via = True
+    Tracer_x = Tracer_x_passed
+    Tracer_y = Tracer_y_passed
+    Tracer_dir = Tracer_dir_passed
+    for seg_idx,seg_type in enumerate(Seg_types):
+        if Seg_types[seg_idx]==0:
+            x1=Tracer_x-Exclusion_width/2*np.sin(Tracer_dir)
+            x2=Tracer_x+Exclusion_width/2*np.sin(Tracer_dir)+Seg_dims[seg_idx]*np.cos(Tracer_dir)
+            y1=Tracer_y-Exclusion_width/2*np.cos(Tracer_dir)
+            y2=Tracer_y+Exclusion_width/2*np.cos(Tracer_dir)+Seg_dims[seg_idx]*np.sin(Tracer_dir)
+            if ((x-x1)*(x-x2)<0) and ((y-y1)*(y-y2)<0):
+                allow_via = False
+        elif Seg_types[seg_idx]==1:
+            arc_center_x=Tracer_x+np.cos(Tracer_dir-np.pi/2)*Seg_dims[seg_idx]
+            arc_center_y=Tracer_y+np.sin(Tracer_dir-np.pi/2)*Seg_dims[seg_idx]
+            seg1=np.array([Tracer_x-arc_center_x,Tracer_y-arc_center_y])
+            end_x=Tracer_x+np.cos(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            end_y=Tracer_y+np.sin(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            seg2=np.array([end_x-arc_center_x,end_y-arc_center_y])
+            seg=np.array([x-arc_center_x,y-arc_center_y])
+            if (np.dot(seg,seg1)>=0) and (np.dot(seg,seg2)>=0): #outisde this quarter plane there is no exclusion
+                rad_dist = np.sqrt(seg[0]**2+seg[1]**2)
+                if abs(rad_dist-Seg_dims[seg_idx])<Exclusion_width/2:
+                       allow_via = False
+        else:
+            arc_center_x=Tracer_x+np.cos(Tracer_dir+np.pi/2)*Seg_dims[seg_idx]
+            arc_center_y=Tracer_y+np.sin(Tracer_dir+np.pi/2)*Seg_dims[seg_idx]
+            seg1=np.array([Tracer_x-arc_center_x,Tracer_y-arc_center_y])
+            end_x=Tracer_x+np.cos(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            end_y=Tracer_y+np.sin(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            seg2=np.array([end_x-arc_center_x,end_y-arc_center_y])
+            seg=np.array([x-arc_center_x,y-arc_center_y])
+            if (np.dot(seg,seg1)>=0) and (np.dot(seg,seg2)>=0): #outisde this quarter plane there is no exclusion
+                rad_dist = np.sqrt(seg[0]**2+seg[1]**2)
+                if abs(rad_dist-Seg_dims[seg_idx])<Exclusion_width/2:
+                       allow_via = False
+        #find parameters for next segment
+        if Seg_types[seg_idx]==0:
+            Tracer_x=Tracer_x+np.cos(Tracer_dir)*Seg_dims[seg_idx]
+            Tracer_y=Tracer_y+np.sin(Tracer_dir)*Seg_dims[seg_idx]
+        elif Seg_types[seg_idx]==1:
+            Tracer_x=Tracer_x+np.cos(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            Tracer_y=Tracer_y+np.sin(Tracer_dir-np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            Tracer_dir=Tracer_dir-np.pi/2
+        else:
+            Tracer_x=Tracer_x+np.cos(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            Tracer_y=Tracer_y+np.sin(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
+            Tracer_dir=Tracer_dir+np.pi/2
+    return allow_via
+
+def allow_holes_via(x,y,Exclusion_dist):
+        #valid for D17 in inches, once conversion has happened
+        allow_via = True
+        h1 = [((D1/2)-(D26/2)-(D3/2))/1000, D4/1000]
+        h2 = [((D1/2)-(D26/2)+(D3/2))/1000, D4/1000]
+        h3 = [((D1/2)+(D26/2)+(D3/2))/1000, D4/1000]
+        h4 = [((D1/2)+(D26/2)-(D3/2))/1000, D4/1000]
+        for h in [h1,h2,h3,h4]:
+            if np.sqrt((x-h[0])**2+(y-h[1])**2)<D17/2*25.4+Exclusion_dist:
+                allow_via = False
+        return allow_via
 
 Seg_endnumvia=np.zeros_like(Seg_types)
 Via_coords=[]
 Tracer_x=((D1/2)-(D26/2))/1000 #This is a trace start parameter
 Tracer_y=0 #This is a trace start parameter
 Tracer_dir=np.pi/2 #This is a trace start parameter
+Via_last_type=1 #This is a via start parameter
+
 for seg_idx,seg_type in enumerate(Seg_types):
     Seg_endnumvia[seg_idx] = np.searchsorted(Trace_viapos,Trace_cumlength[seg_idx])
 print(Seg_endnumvia)
 Seg_endnumvia[1:] = Seg_endnumvia[1:]-Seg_endnumvia[:-1]
 print(Seg_endnumvia)
+
 for seg_idx,seg_type in enumerate(Seg_types):
     #generate positions for this segment
     for via_idx in range(Seg_endnumvia[seg_idx]):
+        via_type= (Via_last_type+1+via_idx) % 2
         if Seg_types[seg_idx]==0:
-            x=Tracer_x+(Tracer_disfirstvia+via_idx*(D13/1000))*np.cos(Tracer_dir)
-            y=Tracer_y+(Tracer_disfirstvia+via_idx*(D13/1000))*np.sin(Tracer_dir)
+            x=Tracer_x+(Tracer_disfirstvia+via_idx*(D13/2000))*np.cos(Tracer_dir)
+            y=Tracer_y+(Tracer_disfirstvia+via_idx*(D13/2000))*np.sin(Tracer_dir)
             ang=Tracer_dir+np.pi/2
-            Via_coords = Via_coords+[[x,y,ang]]
+            Via_coords = Via_coords+[[x,y,ang,via_type]]
         elif Seg_types[seg_idx]==1:
             arc_center_x=Tracer_x+np.cos(Tracer_dir-np.pi/2)*Seg_dims[seg_idx]
             arc_center_y=Tracer_y+np.sin(Tracer_dir-np.pi/2)*Seg_dims[seg_idx]
             arc_startangle=Tracer_dir+np.pi/2
-            ang=arc_startangle-(Tracer_disfirstvia+via_idx*(D13/1000))/Seg_lengths[seg_idx]*np.pi/2
+            ang=arc_startangle-(Tracer_disfirstvia+via_idx*(D13/2000))/Seg_lengths[seg_idx]*np.pi/2
             x=arc_center_x+Seg_dims[seg_idx]*np.cos(ang)
             y=arc_center_y+Seg_dims[seg_idx]*np.sin(ang)
-            Via_coords = Via_coords+[[x,y,ang]]
+            Via_coords = Via_coords+[[x,y,ang,via_type]]
         else:
             arc_center_x=Tracer_x+np.cos(Tracer_dir+np.pi/2)*Seg_dims[seg_idx]
             arc_center_y=Tracer_y+np.sin(Tracer_dir+np.pi/2)*Seg_dims[seg_idx]
             arc_startangle=Tracer_dir-np.pi/2
-            ang=arc_startangle+(Tracer_disfirstvia+via_idx*(D13/1000))/Seg_lengths[seg_idx]*np.pi/2
+            ang=arc_startangle+(Tracer_disfirstvia+via_idx*(D13/2000))/Seg_lengths[seg_idx]*np.pi/2
             x=arc_center_x+Seg_dims[seg_idx]*np.cos(ang)
             y=arc_center_y+Seg_dims[seg_idx]*np.sin(ang)
-            Via_coords = Via_coords+[[x,y,ang]]
+            Via_coords = Via_coords+[[x,y,ang,via_type]]
     #find parameters for next segment
     if Seg_types[seg_idx]==0:
         Tracer_x=Tracer_x+np.cos(Tracer_dir)*Seg_dims[seg_idx]
@@ -199,9 +268,14 @@ for seg_idx,seg_type in enumerate(Seg_types):
         Tracer_x=Tracer_x+np.cos(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
         Tracer_y=Tracer_y+np.sin(Tracer_dir+np.pi/4)*np.sqrt(2)*Seg_dims[seg_idx]
         Tracer_dir=Tracer_dir+np.pi/2
-    Tracer_disfirstvia=(D13/1000)-Seg_lengths[seg_idx]+(Tracer_disfirstvia+(Seg_endnumvia[seg_idx]-1)*(D13/1000))
+    Tracer_disfirstvia=(D13/2000)-Seg_lengths[seg_idx]+(Tracer_disfirstvia+(Seg_endnumvia[seg_idx]-1)*(D13/2000))
+    Via_last_type=via_type
 
-
+#Reinitialise for later use in functions
+Tracer_x=((D1/2)-(D26/2))/1000 #This is a trace start parameter
+Tracer_y=0 #This is a trace start parameter
+Tracer_dir=np.pi/2 #This is a trace start parameter
+Via_last_type=1 #This is a via start parameter
 
 init =  """G04*
 G04*
@@ -758,18 +832,37 @@ def drillfiles():
         file.write("%\n")
         file.write("T01\n")
 
+        Exclusion_width =  D12/1000+(1+1*double_via_bool.get())*np.sqrt(3)*D13/1000
+        Exclusion_dist = np.sqrt(3)*D13/2000
+        
+        lattice_a = 2*D13/1000
+        V1=np.flip(np.arange(D2/2000-np.sqrt(3)*lattice_a/4,Exclusion_dist,-np.sqrt(3)*lattice_a/2))
+        V2=np.arange(D2/2000+np.sqrt(3)*lattice_a/4,D2/1000-Exclusion_dist,np.sqrt(3)*lattice_a/2)
+        V=np.concatenate((V1,V2))
+        for via_ind,via_y in enumerate(V):
+            H1=np.flip(np.arange(D1/2000+((via_ind % 2)/2-1)*lattice_a,Exclusion_dist,-lattice_a))
+            H2=np.arange(D1/2000+(via_ind % 2)/2*lattice_a,D1/1000-Exclusion_dist,lattice_a)
+            H=np.concatenate((H1,H2))
+            for via_x in H:
+                allow_via=allow_ground_via(via_x,via_y,Seg_types,Seg_dims,Seg_lengths,Tracer_x,Tracer_y,Tracer_dir,Exclusion_width)
+                allow_via=allow_via and allow_holes_via(via_x, via_y, Exclusion_dist)
+                if allow_via:
+                    file.write("""X%sY%s\n"""%(toinchtz2(via_x),toinchtz2(via_y)))
 
-
-        for via_idx,via_coord in enumerate(Via_coords):
-                via_x=via_coord[0]-np.cos(via_coord[2])*D12/2000
-                via_y=via_coord[1]-np.sin(via_coord[2])*D12/2000
+        if double_via_bool.get():
+            Via_selected=Via_coords
+        else:
+            Via_selected=Via_coords[::2]
+        for via_idx,via_coord in enumerate(Via_selected):
+                via_x=via_coord[0]-np.cos(via_coord[2])*(D12/2000+via_coord[3]*np.sqrt(3)/2*D13/1000)
+                via_y=via_coord[1]-np.sin(via_coord[2])*(D12/2000+via_coord[3]*np.sqrt(3)/2*D13/1000)
                 print("via L" + str(via_idx) + "-------------> " + str(via_x) + ", " + str(via_y))
-                print("before--->" + str(via_x))
-                print("after----> " + str(toinchtz2(via_x)))
+                #print("before--->" + str(via_x))
+                #print("after----> " + str(toinchtz2(via_x)))
                 file.write("""X%sY%s\n"""%(toinchtz2(via_x),toinchtz2(via_y)))
                 print("X%sY%s"%(toinchtz2(via_x),toinchtz2(via_y)))
-                via_x=via_coord[0]+np.cos(via_coord[2])*D12/2000
-                via_y=via_coord[1]+np.sin(via_coord[2])*D12/2000
+                via_x=via_coord[0]+np.cos(via_coord[2])*(D12/2000+via_coord[3]*np.sqrt(3)*D13/2000)
+                via_y=via_coord[1]+np.sin(via_coord[2])*(D12/2000+via_coord[3]*np.sqrt(3)*D13/2000)
                 print("via R" + str(via_idx) + "-------------> " + str(via_x) + ", " + str(via_y))
                 file.write("""X%sY%s\n"""%(toinchtz2(via_x),toinchtz2(via_y)))
                 print("X%sY%s"%(toinchtz2(via_x),toinchtz2(via_y)))
