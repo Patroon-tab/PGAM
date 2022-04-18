@@ -102,6 +102,8 @@ E16 = inputd(16, D16/1000)
 E17 = inputd(17, D17)
 E18 = inputd(18, D18/1000)
 E19 = inputd(19, D19/1000)
+global correction
+correction = 3.93701
 
 tk.Label(window, text="Name:").grid(row=(19))
 namef = tk.Entry(window)
@@ -263,8 +265,8 @@ end = "M02*"
 def featurelayer(laynam): #Layer with Traces e.g Top and Bottom Layer
 
         def draw(point, light): #Draws a polygon from a point array
-                print("X%dY%d%s*"%(point[0],point[1], light))
-                file.write("X%dY%d%s*\n"%(point[0],point[1], light))
+                print("X%dY%d%s*"%(point[0]*correction,point[1]*correction, light))
+                file.write("X%dY%d%s*\n"%(point[0]*correction,point[1]*correction, light))
 
         ### Initialize File ###
         init =  """G04*
@@ -425,7 +427,7 @@ def toinchtz2(mm):
         """
         zeros = 5
         """
-        mils = ((mm/25.4) *1000)/3.93701
+        mils = ((mm/25.4) *1000)/(3.93701/correction)
         cenmils = int(round(mils,1)*100)
         cenmils = str(cenmils)
         """
@@ -447,12 +449,13 @@ def drillfiles():
         D14 = (D14 / 25.4)#/3.947
         D17 = (D17 / 25.4)#/3.947
 
-        initdrill = """M48
-        ;Layer_Color=9474304
-        ;FILE_FORMAT=2:5
-        INCH,TZ
-        ;TYPE=PLATED
-        """
+        initdrill = """%
+M48
+;Layer_Color=9474304
+;FILE_FORMAT=2:5
+INCH,TZ
+;TYPE=PLATED
+"""
 
 
         file = open(basename + ".txt", "w+")
@@ -460,8 +463,8 @@ def drillfiles():
 
         file.write(initdrill)
 
-        viat1 = ("T1F00S00C%f"%(D14/3.93701))
-        holet2 = ("T2F00S00C%f"%(D17/3.93701))
+        viat1 = ("T1F00S00C%f"%(D14*(3.93701/correction)))
+        holet2 = ("T2F00S00C%f"%(D17*(3.93701/correction)))
 
         file.write(viat1+"\n")
         file.write(holet2+"\n")
@@ -541,7 +544,7 @@ def groundplane(filename):
         p4 = [0,D2]
         pointsgp = [p1,pcc1,pcc2,pcc3,pcc4,p2,p3,pc1,pc2,pc3,pc4,p4,p1]
         for x in pointsgp:
-                print("X%dY%d%s*\n"%(x[0],x[1], "D1"))
+                print("X%dY%d%s*\n"%(x[0]*correction,x[1]*correction, "D1"))
                 file.write("X%dY%d%s*\n"%(x[0],x[1], "D1"))
     
         file.write("G37*\n")
@@ -560,8 +563,8 @@ def solder(filename):
         p4 = [0,D2]
         pointsgp = [p1,p2,p3,p4,p1]
         for x in pointsgp:
-                print("X%dY%d%s*\n"%(x[0],x[1], "D1"))
-                file.write("X%dY%d%s*\n"%(x[0],x[1], "D1"))  
+                print("X%dY%d%s*\n"%(x[0]*correction,x[1]*correction, "D1"))
+                file.write("X%dY%d%s*\n"%(x[0]*correction,x[1]*correction, "D1"))  
       
         file.write("G37*\n")
         file.write(end)
@@ -679,14 +682,14 @@ def mechanical(filename,initin):
                 print("X%dY%d%s*\n"%(x[0],x[1], "D01"))
                 file.write("X%dY%d%s*\n"%(x[0],x[1], "D01"))
         """
-        file.write("X%dY%d%s*\n"%(p1[0],p1[1], "D02"))
-        file.write("X%dY%d%s*\n"%(p2[0],p2[1], "D01"))
-        file.write("X%dY%d%s*\n"%(p2[0],p2[1], "D02"))
-        file.write("X%dY%d%s*\n"%(p3[0],p3[1], "D01"))
-        file.write("X%dY%d%s*\n"%(p3[0],p3[1], "D02"))
-        file.write("X%dY%d%s*\n"%(p4[0],p4[1], "D01"))
-        file.write("X%dY%d%s*\n"%(p4[0],p4[1], "D02"))
-        file.write("X%dY%d%s*\n"%(p1[0],p1[1], "D01"))
+        file.write("X%dY%d%s*\n"%(p1[0]*correction,p1[1]*correction, "D02"))
+        file.write("X%dY%d%s*\n"%(p2[0]*correction,p2[1]*correction, "D01"))
+        file.write("X%dY%d%s*\n"%(p2[0]*correction,p2[1]*correction, "D02"))
+        file.write("X%dY%d%s*\n"%(p3[0]*correction,p3[1]*correction, "D01"))
+        file.write("X%dY%d%s*\n"%(p3[0]*correction,p3[1]*correction, "D02"))
+        file.write("X%dY%d%s*\n"%(p4[0]*correction,p4[1]*correction, "D01"))
+        file.write("X%dY%d%s*\n"%(p4[0]*correction,p4[1]*correction, "D02"))
+        file.write("X%dY%d%s*\n"%(p1[0]*correction,p1[1]*correction, "D01"))
 
 
 
