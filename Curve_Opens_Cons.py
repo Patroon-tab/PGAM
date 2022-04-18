@@ -80,6 +80,8 @@ E24 = inputd(24, D24/1000)
 E26 = inputd(26, D26/1000)
 E30 = inputd(30, D30/1000)
 E31 = inputd(31, D31/1000)
+global correction
+correction = 3.93701
 tk.Label(window, text="Name:").grid(row=(32))
 namef = tk.Entry(window)
 namef.grid(row=(32), column=1)
@@ -555,7 +557,7 @@ def featurelayer(laynam):
 
         def draw(point, light): #Draws a polygon from a point array
                 #print("X%dY%d%s*"%(point[0],point[1], light))
-                file.write("X%dY%d%s*\n"%(point[0],point[1], light))
+                file.write("X%dY%d%s*\n"%(point[0]*correction,point[1]*correction, light))
 
         file = open(basename+laynam, "w+")
         file.truncate(0)
@@ -887,7 +889,7 @@ def toinchtz2(mm):
         """
         zeros = 5
         """
-        mils = ((mm/25.4) *1000)/3.93701
+        mils = ((mm/25.4) *1000)/(3.93701/correction)
         cenmils = int(round(mils,1)*100)
         cenmils = str(cenmils)
         """
@@ -909,12 +911,13 @@ def drillfiles():
         D14 = (D14 / 25.4)#/3.947
         D17 = (D17 / 25.4)#/3.947
 
-        initdrill = """M48
-        ;Layer_Color=9474304
-        ;FILE_FORMAT=2:5
-        INCH,TZ
-        ;TYPE=PLATED
-        """
+        initdrill = """%
+M48
+;Layer_Color=9474304
+;FILE_FORMAT=2:5
+INCH,TZ
+;TYPE=PLATED
+"""
 
 
         file = open(basename + ".txt", "w+")
@@ -922,8 +925,8 @@ def drillfiles():
 
         file.write(initdrill)
 
-        viat1 = ("T1F00S00C%f"%(D14/3.93701))
-        holet2 = ("T2F00S00C%f"%(D17/3.93701))
+        viat1 = ("T1F00S00C%f"%(D14*(3.93701/correction)))
+        holet2 = ("T2F00S00C%f"%(D17*(3.93701/correction)))
 
         file.write(viat1+"\n")
         file.write(holet2+"\n")
@@ -1005,7 +1008,7 @@ def groundplane(filename):
         pointsgp = [p1,pcc1,pcc2,pcc3,pcc4,p2,p3,pc1,pc2,pc3,pc4,p4,p1]
         for x in pointsgp:
                 #print("X%dY%d%s*\n"%(x[0],x[1], "D1"))
-                file.write("X%dY%d%s*\n"%(x[0],x[1], "D1"))
+                file.write("X%dY%d%s*\n"%(x[0]*correction,x[1]*correction, "D1"))
 
         
 
@@ -1028,7 +1031,7 @@ def solder(filename):
         pointsgp = [p1,p2,p3,p4,p1]
         for x in pointsgp:
                 #print("X%dY%d%s*\n"%(x[0],x[1], "D1"))
-                file.write("X%dY%d%s*\n"%(x[0],x[1], "D1"))  
+                file.write("X%dY%d%s*\n"%(x[0]*correction,x[1]*correction, "D1"))  
 
         
         file.write("G37*\n")
@@ -1128,9 +1131,7 @@ solder(basename + ".GBS")
 
 def mechanical(filename,initin):
         
-        def draw(point, light): #Draws a polygon from a point array
-                #print("X%dY%d%s*"%(point[0],point[1], light))
-                file.write("X%dY%d%s*\n"%(point[0],point[1], light))
+
 
         file = open(filename, "w+")
         file.truncate(0)
@@ -1143,14 +1144,14 @@ def mechanical(filename,initin):
         p4 = [0,D2]
         pointsgp = [p1,p2,p3,p4]
         
-        file.write("X%dY%d%s*\n"%(p1[0],p1[1], "D02"))
-        file.write("X%dY%d%s*\n"%(p2[0],p2[1], "D01"))
-        file.write("X%dY%d%s*\n"%(p2[0],p2[1], "D02"))
-        file.write("X%dY%d%s*\n"%(p3[0],p3[1], "D01"))
-        file.write("X%dY%d%s*\n"%(p3[0],p3[1], "D02"))
-        file.write("X%dY%d%s*\n"%(p4[0],p4[1], "D01"))
-        file.write("X%dY%d%s*\n"%(p4[0],p4[1], "D02"))
-        file.write("X%dY%d%s*\n"%(p1[0],p1[1], "D01"))
+        file.write("X%dY%d%s*\n"%(p1[0]*correction,p1[1]*correction, "D02"))
+        file.write("X%dY%d%s*\n"%(p2[0]*correction,p2[1]*correction, "D01"))
+        file.write("X%dY%d%s*\n"%(p2[0]*correction,p2[1]*correction, "D02"))
+        file.write("X%dY%d%s*\n"%(p3[0]*correction,p3[1]*correction, "D01"))
+        file.write("X%dY%d%s*\n"%(p3[0]*correction,p3[1]*correction, "D02"))
+        file.write("X%dY%d%s*\n"%(p4[0]*correction,p4[1]*correction, "D01"))
+        file.write("X%dY%d%s*\n"%(p4[0]*correction,p4[1]*correction, "D02"))
+        file.write("X%dY%d%s*\n"%(p1[0]*correction,p1[1]*correction, "D01"))
         
 
 
@@ -1162,23 +1163,23 @@ def mechanical(filename,initin):
 
         points_cut = [point_cut_1,point_cut_2,point_cut_3,point_cut_4,point_cut_1]
 
-        file.write("X%dY%d%s*\n"%(point_cut_1[0],point_cut_1[1], "D02"))
+        file.write("X%dY%d%s*\n"%(point_cut_1[0]*correction,point_cut_1[1]*correction, "D02"))
         for x in points_cut:
 
-                file.write("X%dY%d%s*\n"%(x[0],x[1], "D01"))
-                file.write("X%dY%d%s*\n"%(x[0],x[1], "D02"))
+                file.write("X%dY%d%s*\n"%(x[0]*correction,x[1]*correction, "D01"))
+                file.write("X%dY%d%s*\n"%(x[0]*correction,x[1]*correction, "D02"))
 
         points_cut_mirror =[]
 
         for x in points_cut:
                 points_cut_mirror.append([x[0], D2-x[1]])
 
-        file.write("X%dY%d%s*\n"%(points_cut_mirror[0][0],points_cut_mirror[0][1], "D02"))
+        file.write("X%dY%d%s*\n"%(points_cut_mirror[0][0]*correction,points_cut_mirror[0][1]*correction, "D02"))
 
         for x in points_cut_mirror:
 
-                file.write("X%dY%d%s*\n"%(x[0],x[1], "D01"))
-                file.write("X%dY%d%s*\n"%(x[0],x[1], "D02"))
+                file.write("X%dY%d%s*\n"%(x[0]*correction,x[1]*correction, "D01"))
+                file.write("X%dY%d%s*\n"%(x[0]*correction,x[1]*correction, "D02"))
 
 
         #file.write("X0Y0D01*\n")
