@@ -25,7 +25,7 @@ D12 = 1.0 * 1000 #Checked
 D13 = 0.5 * 1000 #Checked
 D14 = 0.15 #Checked
 D16 = 10 * 1000 #None, 2,5,10mm #Checked
-D17 = 2.06 #SSMA = 1.98 #1.85 = 2.06 #Checked
+D17 = 1.98 #SSMA = 1.98 #1.85 = 2.06 #Checked
 D18 = 0.4064 * 1000 #y dim GND cutout #1.85 = no antipad #SSMA = 0.4064 #Checked
 D19 =  0.508 * 1000   #x dim GND Cutout #1.85 = no antipad #SSMA = 0.508 #Checked
 
@@ -545,7 +545,7 @@ def groundplane(filename):
         pointsgp = [p1,pcc1,pcc2,pcc3,pcc4,p2,p3,pc1,pc2,pc3,pc4,p4,p1]
         for x in pointsgp:
                 print("X%dY%d%s*\n"%(x[0]*correction,x[1]*correction, "D1"))
-                file.write("X%dY%d%s*\n"%(x[0],x[1], "D1"))
+                file.write("X%dY%d%s*\n"%(x[0]*correction,x[1]*correction, "D1"))
     
         file.write("G37*\n")
         file.write(end)
@@ -671,7 +671,7 @@ def mechanical(filename,initin):
         file.truncate(0)
         file.write(initin)
         file.write("%ADD15C,0.00800*%\n")
-        file.write("D10*\n")
+        file.write("D15*\n")
         p1 = [0,0]
         p2 = [D1,0]
         p3 = [D1,D2]

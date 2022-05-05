@@ -11,9 +11,9 @@ prefactor = 1
 ######################
 D1 = 12.7 * 1000 #Checked
 D2 = 25.4 * 1000 #Checked
-D3 = 9.53 * 1000 #SSMA = 9.53 #1.85 =  5.84 #Checked
+D3 = 5.84 * 1000 #SSMA = 9.53 #1.85 =  5.84 #Checked
 D4 = 2.79 * 1000 #Checked
-D5 = 1.27 * 1000 #SSMA = 1.27mm #1.85 = 0.762mm #Checked
+D5 = 0.762* 1000 #SSMA = 1.27mm #1.85 = 0.762mm #Checked
 D6 = 0.25 * 1000  #SSMA = 0.25 #1.86 = 0.25 #Checked
 D7 =  0.2794 * 1000 #Checked
 D8  = 0.61 * 1000 #Checked
@@ -23,10 +23,10 @@ D11 = 0.3302 * 1000 #Checked
 D12 = 1.0 * 1000 #Checked
 D13 = 0.5 * 1000 #Checked
 D14 = 0.15 #Checked
-D16 = 5.0 * 1000 #None,2,5
+D16 = 10.0 * 1000 #None,2,5
 D17 = 2.06 #SSMA = 1.98 #1.85 = 2.06 #Checked
-D18 = 0.4064 * 1000 #y dim GND cutout #1.85 = no antipad #SSMA = 0.4064 #Checked
-D19 =  0.508 * 1000   #x dim GND Cutout #1.85 = no antipad #SSMA = 0.508 #Checked
+D18 = 0 * 1000 #y dim GND cutout #1.85 = no antipad #SSMA = 0.4064 #Checked
+D19 =  0 * 1000   #x dim GND Cutout #1.85 = no antipad #SSMA = 0.508 #Checked
 
 D26 = 0.4064 *1000#length head x #Checked
 D27 = 0.1016 * 1000 #width head y #Checked
@@ -679,7 +679,7 @@ def mechanical(filename,initin):
         file.truncate(0)
         file.write(initin)
         file.write("%ADD15C,0.00800*%\n")
-        file.write("D10*\n")
+        file.write("D15*\n")
         p1 = [0,0]
         p2 = [D1,0]
         p3 = [D1,D2]
