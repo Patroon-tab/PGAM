@@ -5,6 +5,7 @@ import weakref
 from zipfile import ZipFile
 import time
 import numpy as np
+import os
 basename = "layer"
 
 prefactor = 1
@@ -741,5 +742,13 @@ zipObj.write(basename + '.txt')
 zipObj.close()
 ### Create Gerber Zip for production END###
 
+os.remove(basename + '.g1')
+os.remove(basename + '.g2')
+os.remove(basename + '.gbl')
+os.remove(basename + '.GBS')
+os.remove(basename + '.GM1')
+os.remove(basename + '.gtl')
+os.remove(basename + '.GTS')
+os.remove(basename + '.txt')
 
 print("Succesfully Created Gerber Files")

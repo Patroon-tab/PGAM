@@ -8,6 +8,7 @@ from zipfile import ZipFile
 import time
 import numpy as np
 from matplotlib import pyplot as plt
+import os
 basename = "layer"
 #Todo
 prefactor = 1
@@ -1107,3 +1108,12 @@ zipObj.write(basename + '.gtl') #working on gtl so not in file folder
 zipObj.write(basename + '.GTS')
 zipObj.write(basename + '.txt')
 zipObj.close()
+
+os.remove(basename + '.g1')
+os.remove(basename + '.g2')
+os.remove(basename + '.gbl')
+os.remove(basename + '.GBS')
+os.remove(basename + '.GM1')
+os.remove(basename + '.gtl')
+os.remove(basename + '.GTS')
+os.remove(basename + '.txt')

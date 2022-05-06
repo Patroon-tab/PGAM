@@ -5,6 +5,7 @@ import weakref
 from zipfile import ZipFile
 import time
 import numpy as np
+import os
 
 basename = "layer"
 
@@ -16,11 +17,11 @@ D3 = 9.53 * 1000 #SSMA = 9.53 #1.85 =  5.84
 D4 = 2.79 * 1000 #Checked
 D5 = 1.27 * 1000 #SSMA = 1.27mm #1.85 = 0.762mm  #Checked
 D6 = 0.25 * 1000 #SSMA = 0.25 #1.86 = 0.25 #Checked
-D7 =  0.2794 * 1000 #Checked
-D8  = 0.61 * 1000 #Checked
+D7 =  0.3302 * 1000 #Checked
+D8  = 0.6096 * 1000 #Checked
 D9  = 0.3 * 1000 #Checked 
 D10 = 0.0762 * 1000 #Chekced
-D11 = 0.3302 * 1000 #Checked
+D11 = 0.3556 * 1000 #Checked
 D12 = 1.0 * 1000 #Checked
 D13 = 0.5 * 1000 #Checked
 D14 = 0.15 #Checked
@@ -732,6 +733,15 @@ zipObj.write(basename + '.GTS')
 zipObj.write(basename + '.txt')
 zipObj.close()
 ### Create Gerber Zip for production END###
+
+os.remove(basename + '.g1')
+os.remove(basename + '.g2')
+os.remove(basename + '.gbl')
+os.remove(basename + '.GBS')
+os.remove(basename + '.GM1')
+os.remove(basename + '.gtl')
+os.remove(basename + '.GTS')
+os.remove(basename + '.txt')
 
 
 print("Succesfully Created Gerber Files")
